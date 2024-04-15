@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	// Logger for feeding back info to the user
 	logCfg := zap.NewDevelopmentConfig()
 	logCfg.EncoderConfig = zapcore.EncoderConfig{ 
 		TimeKey: "", 
@@ -27,6 +28,16 @@ func main() {
 	defer unsugared.Sync()
 	logger := unsugared.Sugar()
 
+	// Logger for debugging
+	debugLogCfg := zap.NewProductionConfig()
+	debugLogCfg.Level = zap.NewAtomicLevelAt(zapcore.DebugLevel)
+	unsugared, err = debugLogCfg.Build()
+	if err != nil {
+        panic("Failed to create logger: " + err.Error())
+    }
+	defer unsugared.Sync()
+	debugLogger := unsugared.Sugar()
+
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
@@ -42,6 +53,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "create":
+		debugLogger.Debug("test debug log")
         createCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
