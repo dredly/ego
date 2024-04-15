@@ -1,0 +1,4 @@
+- [ ] Use proper logging
+- [ ] Add command
+- [ ] Show command
+- [ ] Record command
