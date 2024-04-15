@@ -2,13 +2,31 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/dredly/ego/internal/db"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func main() {
+	logCfg := zap.NewDevelopmentConfig()
+	logCfg.EncoderConfig = zapcore.EncoderConfig{ 
+		TimeKey: "", 
+		LevelKey: "", 
+		NameKey: "", 
+		CallerKey: "", 
+		MessageKey: "M", 
+		StacktraceKey: "",
+	}
+
+	unsugared, err := logCfg.Build()
+    if err != nil {
+        panic("Failed to create logger: " + err.Error())
+    }
+	defer unsugared.Sync()
+	logger := unsugared.Sugar()
+
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
@@ -19,8 +37,7 @@ func main() {
 	recordLoser := recordCmd.String("l", "", "name of the player who lost")
 
 	if len(os.Args) < 2 {
-        fmt.Println("expected a subcommand")
-        os.Exit(1)
+		logger.Fatal("expected a subcommand")
     }
 
 	switch os.Args[1] {
@@ -28,23 +45,20 @@ func main() {
         createCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
-			fmt.Printf("Failed to get db connection: %v\n", err)
-			os.Exit(1)
+			logger.Fatalf("failed to get db connection: %w", err)
 		}
 		err = conn.Initialise()
 		if err != nil {
-			fmt.Printf("Failed to initialise database: %v/n", err)
-			os.Exit(1)
+			logger.Fatalf("failed to initialise db: %v", err)
 		}
-		fmt.Println("Initialised database")
+		logger.Info("Successfully initialised leaderboard")
     case "add":
         addCmd.Parse(os.Args[2:])
-		fmt.Printf("adding new player %s\n", *addName)
+		logger.Infof("added new player %s\n", *addName)
 	case "record":
 		recordCmd.Parse(os.Args[2:])
-		fmt.Printf("recording %s win over %s\n", *recordWinner, *recordLoser)
+		logger.Infof("recorded %s win over %s\n", *recordWinner, *recordLoser)
     default:
-        fmt.Printf("unrecognised subcommand: %s\n", os.Args[1])
-        os.Exit(1)
+		logger.Fatalf("unrecognised subcommand: %s\n", os.Args[1])
 	}
 }

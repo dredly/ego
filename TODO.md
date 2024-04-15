@@ -1,4 +1,8 @@
 - [ ] Use proper logging
+    - [x] Replace all prints with logs
+    - [ ] debug level logger
+    - [ ] command line flag to change log level
+    - [ ] refactor logging config to keep main.go clean
 - [ ] Add command
 - [ ] Show command
 - [ ] Record command
