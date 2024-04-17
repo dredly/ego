@@ -1,4 +1,6 @@
-- [ ] Use proper logging
+- [x] Logging
+    - [x] Simple logger
+    - [x] verbose flag
 - [ ] Add command
 - [ ] Show command
 - [ ] Record command

@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -40,7 +39,6 @@ func New() (*DBConnection, error) {
 		}
 		defer f.Close()
 	}
-	fmt.Printf("pathToDB: %s\n", pathToDB)
 	db, err := sql.Open("sqlite3", pathToDB)
 	if err != nil {
 		return nil, err

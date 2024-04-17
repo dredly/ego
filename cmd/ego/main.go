@@ -2,11 +2,15 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
+	"slices"
 
 	"github.com/dredly/ego/internal/db"
 )
+
+var verbose bool;
+var logger = log.New(os.Stdout, "", 0)
 
 func main() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
@@ -19,32 +23,50 @@ func main() {
 	recordLoser := recordCmd.String("l", "", "name of the player who lost")
 
 	if len(os.Args) < 2 {
-        fmt.Println("expected a subcommand")
-        os.Exit(1)
+		logger.Fatal("expected a subcommand")
     }
 
-	switch os.Args[1] {
+	var verboseArgIdx int;
+	for i, arg := range os.Args {
+		if arg == "-v" || arg == "verbose" {
+			verbose = true;
+			verboseArgIdx = i;
+			break;
+		}
+	}
+	var args []string
+	if verbose {
+		args = slices.Delete(os.Args, verboseArgIdx, verboseArgIdx + 1)
+	} else {
+		args = os.Args
+	}
+
+	switch args[1] {
 	case "create":
+		verboseLog("test message")
         createCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
-			fmt.Printf("Failed to get db connection: %v\n", err)
-			os.Exit(1)
+			log.Fatalf("failed to get db connection: %v", err)
 		}
 		err = conn.Initialise()
 		if err != nil {
-			fmt.Printf("Failed to initialise database: %v/n", err)
-			os.Exit(1)
+			logger.Fatalf("failed to initialise db: %v", err)
 		}
-		fmt.Println("Initialised database")
+		logger.Printf("Successfully initialised leaderboard")
     case "add":
         addCmd.Parse(os.Args[2:])
-		fmt.Printf("adding new player %s\n", *addName)
+		logger.Printf("added new player %s", *addName)
 	case "record":
 		recordCmd.Parse(os.Args[2:])
-		fmt.Printf("recording %s win over %s\n", *recordWinner, *recordLoser)
+		logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
     default:
-        fmt.Printf("unrecognised subcommand: %s\n", os.Args[1])
-        os.Exit(1)
+		logger.Fatalf("unrecognised subcommand: %s\n", os.Args[1])
+	}
+}
+
+func verboseLog(msg string) {
+	if verbose {
+		logger.Print(msg)
 	}
 }
