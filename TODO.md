@@ -1,6 +1,6 @@
 - [x] Logging
     - [x] Simple logger
     - [x] verbose flag
-- [ ] Add command
+- [x] Add command
 - [ ] Show command
 - [ ] Record command

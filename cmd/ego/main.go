@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/dredly/ego/internal/db"
+	"github.com/dredly/ego/internal/types"
 )
 
 var verbose bool;
@@ -41,9 +43,10 @@ func main() {
 		args = os.Args
 	}
 
+	verboseLog("args given: " + strings.Join(args, ", "))
+
 	switch args[1] {
 	case "create":
-		verboseLog("test message")
         createCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
@@ -55,7 +58,12 @@ func main() {
 		}
 		logger.Printf("Successfully initialised leaderboard")
     case "add":
-        addCmd.Parse(os.Args[2:])
+        addCmd.Parse(args[2:])
+		conn, err := db.New()
+		if err != nil {
+			log.Fatalf("failed to get db connection: %v", err)
+		}
+		conn.AddPlayer(*types.NewPlayer(*addName))
 		logger.Printf("added new player %s", *addName)
 	case "record":
 		recordCmd.Parse(os.Args[2:])
