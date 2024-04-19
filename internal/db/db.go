@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/dredly/ego/internal/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -50,8 +51,21 @@ func (conn DBConnection) Initialise() error {
 	_, err := conn.db.Exec(`CREATE TABLE IF NOT EXISTS players (
 		id    INTEGER PRIMARY KEY,
         name  TEXT NOT NULL,
-		elo   REAL
+		elo   REAL,
+		CONSTRAINT name_unique UNIQUE (name)
 	);`)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (conn DBConnection) AddPlayer(p types.Player) error {
+	stmt, err := conn.db.Prepare("INSERT INTO players (name, elo) values ($1, $2)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.Name, p.ELO)
 	if err != nil {
 		return err
 	}

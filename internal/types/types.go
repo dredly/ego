@@ -2,18 +2,18 @@ package types
 
 const startingELO = 1000
 
-type Person struct {
+type Player struct {
 	Name string
 	ELO float64
 }
 
-func NewPerson(name string) *Person {
-	return &Person{
+func NewPlayer(name string) *Player {
+	return &Player{
 		Name: name,
 		ELO: startingELO, 
 	}
 }
 
-func (p *Person) UpdateELO(change float64) {	
+func (p *Player) UpdateELO(change float64) {	
 	p.ELO += change
 }
