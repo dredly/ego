@@ -20,6 +20,8 @@ func main() {
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 	addName := addCmd.String("name", "", "name of the player to add to the leaderboard")
 
+	showCmd := flag.NewFlagSet("show", flag.ExitOnError)
+
 	recordCmd := flag.NewFlagSet("record", flag.ExitOnError)
 	recordWinner := recordCmd.String("w", "", "name of the player who won")
 	recordLoser := recordCmd.String("l", "", "name of the player who lost")
@@ -47,13 +49,12 @@ func main() {
 
 	switch args[1] {
 	case "create":
-        createCmd.Parse(os.Args[2:])
+        createCmd.Parse(args[2:])
 		conn, err := db.New()
 		if err != nil {
-			log.Fatalf("failed to get db connection: %v", err)
+			logger.Fatalf("failed to get db connection: %v", err)
 		}
-		err = conn.Initialise()
-		if err != nil {
+		if err := conn.Initialise(); err != nil {
 			logger.Fatalf("failed to initialise db: %v", err)
 		}
 		logger.Printf("Successfully initialised leaderboard")
@@ -61,15 +62,31 @@ func main() {
         addCmd.Parse(args[2:])
 		conn, err := db.New()
 		if err != nil {
-			log.Fatalf("failed to get db connection: %v", err)
+			logger.Fatalf("failed to get db connection: %v", err)
 		}
-		conn.AddPlayer(*types.NewPlayer(*addName))
+		if err := conn.AddPlayer(*types.NewPlayer(*addName)); err != nil {
+			logger.Fatalf("failed to add player: %v", err)
+		}
 		logger.Printf("added new player %s", *addName)
+	case "show":
+		showCmd.Parse(args[2:])
+		conn, err := db.New()
+		if err != nil {
+			logger.Fatalf("failed to get db connection: %v", err)
+		}
+		players, err:= conn.Show()
+		if err != nil {
+			logger.Fatalf("failed to show all players: %v", err)
+		}
+		logger.Printf("Leaderboard")
+		for i, player := range players {
+			logger.Printf("%d. %s: %.2f", i + 1, player.Name, player.ELO)
+		}
 	case "record":
-		recordCmd.Parse(os.Args[2:])
+		recordCmd.Parse(args[2:])
 		logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
     default:
-		logger.Fatalf("unrecognised subcommand: %s\n", os.Args[1])
+		logger.Fatalf("unrecognised subcommand: %s\n", args[1])
 	}
 }
 
