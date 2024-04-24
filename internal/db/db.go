@@ -89,6 +89,28 @@ func (conn DBConnection) Show() ([]types.Player, error) {
 	return players, nil
 }
 
+func (conn DBConnection) FindPlayerByName(name string) (types.Player, error) {
+	row := conn.db.QueryRow("SELECT elo FROM players WHERE name = $1", name)
+	var elo float64
+	err := row.Scan(&elo)
+	if err != nil {
+		return types.Player{}, err
+	}
+	return types.Player{Name: name, ELO: elo}, nil
+}
+
+func (conn DBConnection) UpdatePlayer(p types.Player) error {
+	stmt, err := conn.db.Prepare("UPDATE players SET elo = $1 WHERE name = $2")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.ELO, p.Name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func exists(path string) (bool, error) {
     _, err := os.Stat(path)
     if err == nil { return true, nil }

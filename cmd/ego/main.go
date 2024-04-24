@@ -84,7 +84,34 @@ func main() {
 		}
 	case "record":
 		recordCmd.Parse(args[2:])
+		conn, err := db.New()
+		if err != nil {
+			logger.Fatalf("failed to get db connection: %v", err)
+		}
+		winner, err := conn.FindPlayerByName(*recordWinner)
+		if err != nil {
+			logger.Fatalf("failed to find winner by name: %v", err)
+		}
+		loser, err := conn.FindPlayerByName(*recordLoser)
+		if err != nil {
+			logger.Fatalf("failed to find loser by name: %v", err)
+		}
+
+		winnerELOInitial := winner.ELO
+		loserELOInitial := loser.ELO
+
+		winner.RecordWin(loserELOInitial)
+		loser.RecordLoss(winnerELOInitial)
+
+		if err := conn.UpdatePlayer(winner); err != nil {
+			logger.Fatalf("failed to update winner elo: %v", err)
+		}
+		if err := conn.UpdatePlayer(loser); err != nil {
+			logger.Fatalf("failed to update loser elo: %v", err)
+		}
+
 		logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
+		logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", *recordWinner, winnerELOInitial, winner.ELO, *recordLoser, loserELOInitial, loser.ELO)
     default:
 		logger.Fatalf("unrecognised subcommand: %s\n", args[1])
 	}

@@ -1,5 +1,7 @@
 package types
 
+import "github.com/dredly/ego/internal/elo"
+
 const startingELO = 1000
 
 type Player struct {
@@ -14,6 +16,12 @@ func NewPlayer(name string) *Player {
 	}
 }
 
-func (p *Player) UpdateELO(change float64) {	
+func (p *Player) RecordWin(opponentELO float64) {
+	change := elo.EloChange(p.ELO, opponentELO, 1)
+	p.ELO += change
+}
+
+func (p *Player) RecordLoss(opponentELO float64) {
+	change := elo.EloChange(p.ELO, opponentELO, 0)
 	p.ELO += change
 }
