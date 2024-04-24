@@ -72,6 +72,23 @@ func (conn DBConnection) AddPlayer(p types.Player) error {
 	return nil
 }
 
+func (conn DBConnection) Show() ([]types.Player, error) {
+	rows, err := conn.db.Query("SELECT name, elo FROM players ORDER BY elo DESC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []types.Player
+	for rows.Next() {
+		var name string
+		var elo float64
+		rows.Scan(&name, &elo)
+		players = append(players, types.Player{Name: name, ELO: elo})
+	}
+	return players, nil
+}
+
 func exists(path string) (bool, error) {
     _, err := os.Stat(path)
     if err == nil { return true, nil }
