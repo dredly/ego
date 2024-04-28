@@ -5,3 +5,9 @@
 - [x] Show command
 - [x] Record command
 - [ ] Record draws, donuts
+    - [ ] Donut
+        - [x] Parse donut arg from command line
+        - [ ] Actually increase k factor for donut
+    - [ ] Refactor verbose mode thingy to use a BoolFunc
+    - [ ] Draws
+- [ ] Track actual games

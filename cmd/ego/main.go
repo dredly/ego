@@ -25,6 +25,11 @@ func main() {
 	recordCmd := flag.NewFlagSet("record", flag.ExitOnError)
 	recordWinner := recordCmd.String("w", "", "name of the player who won")
 	recordLoser := recordCmd.String("l", "", "name of the player who lost")
+	var donut bool
+	recordCmd.BoolFunc("donut", "whether the loser scored 0 points", func(val string) error {
+		donut = true
+		return nil
+	})
 
 	if len(os.Args) < 2 {
 		logger.Fatal("expected a subcommand")
@@ -110,7 +115,11 @@ func main() {
 			logger.Fatalf("failed to update loser elo: %v", err)
 		}
 
-		logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
+		if donut {
+			logger.Printf("recorded %s donut over %s\n", *recordWinner, *recordLoser)
+		} else {
+			logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
+		}
 		logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", *recordWinner, winnerELOInitial, winner.ELO, *recordLoser, loserELOInitial, loser.ELO)
     default:
 		logger.Fatalf("unrecognised subcommand: %s\n", args[1])
