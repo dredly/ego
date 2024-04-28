@@ -105,8 +105,8 @@ func main() {
 		winnerELOInitial := winner.ELO
 		loserELOInitial := loser.ELO
 
-		winner.RecordWin(loserELOInitial)
-		loser.RecordLoss(winnerELOInitial)
+		winner.RecordWin(loserELOInitial, donut)
+		loser.RecordLoss(winnerELOInitial, donut)
 
 		if err := conn.UpdatePlayer(winner); err != nil {
 			logger.Fatalf("failed to update winner elo: %v", err)
