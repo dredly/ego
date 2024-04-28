@@ -4,3 +4,4 @@
 - [x] Add command
 - [x] Show command
 - [x] Record command
+- [ ] Record draws, donuts
