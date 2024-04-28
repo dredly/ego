@@ -16,12 +16,17 @@ func NewPlayer(name string) *Player {
 	}
 }
 
-func (p *Player) RecordWin(opponentELO float64) {
-	change := elo.EloChange(p.ELO, opponentELO, 1)
+func (p *Player) RecordWin(opponentELO float64, isDonut bool) {
+	change := elo.EloChange(p.ELO, opponentELO, 1, isDonut)
 	p.ELO += change
 }
 
-func (p *Player) RecordLoss(opponentELO float64) {
-	change := elo.EloChange(p.ELO, opponentELO, 0)
+func (p *Player) RecordLoss(opponentELO float64, isDonut bool) {
+	change := elo.EloChange(p.ELO, opponentELO, 0, isDonut)
+	p.ELO += change
+}
+
+func (p *Player) RecordDraw(opponentELO float64) {
+	change := elo.EloChange(p.ELO, opponentELO, 0.5, false)
 	p.ELO += change
 }

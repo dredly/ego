@@ -2,9 +2,13 @@ package elo
 
 import "math"
 
-const kFactor = 20
+const defaultKFactor float64 = 20
 
-func EloChange(r1, r2, score float64) float64 {
+func EloChange(r1, r2, score float64, isDonut bool) float64 {
+	kFactor := defaultKFactor
+	if isDonut {
+		kFactor = 2 * defaultKFactor
+	}
 	return kFactor * (score - expectedScore(r1, r2))
 }
 

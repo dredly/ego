@@ -4,4 +4,11 @@
 - [x] Add command
 - [x] Show command
 - [x] Record command
-- [ ] Record draws, donuts
+- [x] Record draws, donuts
+    - [x] Donut
+        - [x] Parse donut arg from command line
+        - [x] Actually increase k factor for donut
+    - [x] Refactor verbose mode thingy to use a BoolFunc
+    - [x] Draws
+- [ ] Refactoring
+- [ ] Track actual games

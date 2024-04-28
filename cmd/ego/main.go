@@ -4,8 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"slices"
-	"strings"
 
 	"github.com/dredly/ego/internal/db"
 	"github.com/dredly/ego/internal/types"
@@ -25,31 +23,29 @@ func main() {
 	recordCmd := flag.NewFlagSet("record", flag.ExitOnError)
 	recordWinner := recordCmd.String("w", "", "name of the player who won")
 	recordLoser := recordCmd.String("l", "", "name of the player who lost")
+	var donut bool
+	recordCmd.BoolFunc("donut", "whether the loser scored 0 points", func(string) error {
+		donut = true
+		return nil
+	})
+
+	recordDrawCmd := flag.NewFlagSet("draw", flag.ExitOnError)
+
+	subCommands := []*flag.FlagSet{createCmd, addCmd, showCmd, recordCmd, recordDrawCmd}
+	for _, sc := range subCommands {
+		sc.BoolFunc("verbose", "enable more detailed logging", func(string) error {
+			verbose = true
+			return nil
+		})
+	}
 
 	if len(os.Args) < 2 {
 		logger.Fatal("expected a subcommand")
     }
 
-	var verboseArgIdx int;
-	for i, arg := range os.Args {
-		if arg == "-v" || arg == "verbose" {
-			verbose = true;
-			verboseArgIdx = i;
-			break;
-		}
-	}
-	var args []string
-	if verbose {
-		args = slices.Delete(os.Args, verboseArgIdx, verboseArgIdx + 1)
-	} else {
-		args = os.Args
-	}
-
-	verboseLog("args given: " + strings.Join(args, ", "))
-
-	switch args[1] {
+	switch os.Args[1] {
 	case "create":
-        createCmd.Parse(args[2:])
+        createCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -59,7 +55,7 @@ func main() {
 		}
 		logger.Printf("Successfully initialised leaderboard")
     case "add":
-        addCmd.Parse(args[2:])
+        addCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -69,7 +65,8 @@ func main() {
 		}
 		logger.Printf("added new player %s", *addName)
 	case "show":
-		showCmd.Parse(args[2:])
+		showCmd.Parse(os.Args[2:])
+		verboseLog("verbose log in show command")
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -83,11 +80,42 @@ func main() {
 			logger.Printf("%d. %s: %.2f", i + 1, player.Name, player.ELO)
 		}
 	case "record":
-		recordCmd.Parse(args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
 		}
+		if os.Args[2] == recordDrawCmd.Name() {
+			recordDrawCmd.Parse(os.Args[3:])
+			if len(os.Args) < 4 {
+				logger.Fatal("expected 2 player names when recording draw")
+			}
+			player1, err := conn.FindPlayerByName(os.Args[3])
+			if err != nil {
+				logger.Fatalf("failed to find player by name: %v", err)
+			}
+			player2, err := conn.FindPlayerByName(os.Args[4])
+			if err != nil {
+				logger.Fatalf("failed to find player by name: %v", err)
+			}
+
+			player1ELOInitial := player1.ELO
+			player2ELOInitial := player2.ELO
+
+			player1.RecordDraw(player2ELOInitial)
+			player2.RecordDraw(player1ELOInitial)
+
+			if err := conn.UpdatePlayer(player1); err != nil {
+				logger.Fatalf("failed to update elo: %v", err)
+			}
+			if err := conn.UpdatePlayer(player2); err != nil {
+				logger.Fatalf("failed to update elo: %v", err)
+			}
+
+			logger.Printf("recorded draw between %s and %s", player1.Name, player2.Name)
+			logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", player1.Name, player1ELOInitial, player1.ELO, player2.Name, player2ELOInitial, player2.ELO)
+			return
+		}
+		recordCmd.Parse(os.Args[2:])
 		winner, err := conn.FindPlayerByName(*recordWinner)
 		if err != nil {
 			logger.Fatalf("failed to find winner by name: %v", err)
@@ -100,8 +128,8 @@ func main() {
 		winnerELOInitial := winner.ELO
 		loserELOInitial := loser.ELO
 
-		winner.RecordWin(loserELOInitial)
-		loser.RecordLoss(winnerELOInitial)
+		winner.RecordWin(loserELOInitial, donut)
+		loser.RecordLoss(winnerELOInitial, donut)
 
 		if err := conn.UpdatePlayer(winner); err != nil {
 			logger.Fatalf("failed to update winner elo: %v", err)
@@ -110,10 +138,14 @@ func main() {
 			logger.Fatalf("failed to update loser elo: %v", err)
 		}
 
-		logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
+		if donut {
+			logger.Printf("recorded %s donut over %s\n", *recordWinner, *recordLoser)
+		} else {
+			logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
+		}
 		logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", *recordWinner, winnerELOInitial, winner.ELO, *recordLoser, loserELOInitial, loser.ELO)
     default:
-		logger.Fatalf("unrecognised subcommand: %s\n", args[1])
+		logger.Fatalf("unrecognised subcommand: %s\n", os.Args[1])
 	}
 }
 
