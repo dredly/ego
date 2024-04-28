@@ -29,7 +29,9 @@ func main() {
 		return nil
 	})
 
-	subCommands := []*flag.FlagSet{createCmd, addCmd, showCmd, recordCmd}
+	recordDrawCmd := flag.NewFlagSet("draw", flag.ExitOnError)
+
+	subCommands := []*flag.FlagSet{createCmd, addCmd, showCmd, recordCmd, recordDrawCmd}
 	for _, sc := range subCommands {
 		sc.BoolFunc("verbose", "enable more detailed logging", func(string) error {
 			verbose = true
@@ -78,11 +80,42 @@ func main() {
 			logger.Printf("%d. %s: %.2f", i + 1, player.Name, player.ELO)
 		}
 	case "record":
-		recordCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
 		}
+		if os.Args[2] == recordDrawCmd.Name() {
+			recordDrawCmd.Parse(os.Args[3:])
+			if len(os.Args) < 4 {
+				logger.Fatal("expected 2 player names when recording draw")
+			}
+			player1, err := conn.FindPlayerByName(os.Args[3])
+			if err != nil {
+				logger.Fatalf("failed to find player by name: %v", err)
+			}
+			player2, err := conn.FindPlayerByName(os.Args[4])
+			if err != nil {
+				logger.Fatalf("failed to find player by name: %v", err)
+			}
+
+			player1ELOInitial := player1.ELO
+			player2ELOInitial := player2.ELO
+
+			player1.RecordDraw(player2ELOInitial)
+			player2.RecordDraw(player1ELOInitial)
+
+			if err := conn.UpdatePlayer(player1); err != nil {
+				logger.Fatalf("failed to update elo: %v", err)
+			}
+			if err := conn.UpdatePlayer(player2); err != nil {
+				logger.Fatalf("failed to update elo: %v", err)
+			}
+
+			logger.Printf("recorded draw between %s and %s", player1.Name, player2.Name)
+			logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", player1.Name, player1ELOInitial, player1.ELO, player2.Name, player2ELOInitial, player2.ELO)
+			return
+		}
+		recordCmd.Parse(os.Args[2:])
 		winner, err := conn.FindPlayerByName(*recordWinner)
 		if err != nil {
 			logger.Fatalf("failed to find winner by name: %v", err)
