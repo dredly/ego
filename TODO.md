@@ -8,6 +8,6 @@
     - [x] Donut
         - [x] Parse donut arg from command line
         - [x] Actually increase k factor for donut
-    - [ ] Refactor verbose mode thingy to use a BoolFunc
+    - [x] Refactor verbose mode thingy to use a BoolFunc
     - [ ] Draws
 - [ ] Track actual games

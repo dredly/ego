@@ -4,8 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"slices"
-	"strings"
 
 	"github.com/dredly/ego/internal/db"
 	"github.com/dredly/ego/internal/types"
@@ -26,35 +24,26 @@ func main() {
 	recordWinner := recordCmd.String("w", "", "name of the player who won")
 	recordLoser := recordCmd.String("l", "", "name of the player who lost")
 	var donut bool
-	recordCmd.BoolFunc("donut", "whether the loser scored 0 points", func(val string) error {
+	recordCmd.BoolFunc("donut", "whether the loser scored 0 points", func(string) error {
 		donut = true
 		return nil
 	})
+
+	subCommands := []*flag.FlagSet{createCmd, addCmd, showCmd, recordCmd}
+	for _, sc := range subCommands {
+		sc.BoolFunc("verbose", "enable more detailed logging", func(string) error {
+			verbose = true
+			return nil
+		})
+	}
 
 	if len(os.Args) < 2 {
 		logger.Fatal("expected a subcommand")
     }
 
-	var verboseArgIdx int;
-	for i, arg := range os.Args {
-		if arg == "-v" || arg == "verbose" {
-			verbose = true;
-			verboseArgIdx = i;
-			break;
-		}
-	}
-	var args []string
-	if verbose {
-		args = slices.Delete(os.Args, verboseArgIdx, verboseArgIdx + 1)
-	} else {
-		args = os.Args
-	}
-
-	verboseLog("args given: " + strings.Join(args, ", "))
-
-	switch args[1] {
+	switch os.Args[1] {
 	case "create":
-        createCmd.Parse(args[2:])
+        createCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -64,7 +53,7 @@ func main() {
 		}
 		logger.Printf("Successfully initialised leaderboard")
     case "add":
-        addCmd.Parse(args[2:])
+        addCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -74,7 +63,8 @@ func main() {
 		}
 		logger.Printf("added new player %s", *addName)
 	case "show":
-		showCmd.Parse(args[2:])
+		showCmd.Parse(os.Args[2:])
+		verboseLog("verbose log in show command")
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -88,7 +78,7 @@ func main() {
 			logger.Printf("%d. %s: %.2f", i + 1, player.Name, player.ELO)
 		}
 	case "record":
-		recordCmd.Parse(args[2:])
+		recordCmd.Parse(os.Args[2:])
 		conn, err := db.New()
 		if err != nil {
 			logger.Fatalf("failed to get db connection: %v", err)
@@ -122,7 +112,7 @@ func main() {
 		}
 		logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", *recordWinner, winnerELOInitial, winner.ELO, *recordLoser, loserELOInitial, loser.ELO)
     default:
-		logger.Fatalf("unrecognised subcommand: %s\n", args[1])
+		logger.Fatalf("unrecognised subcommand: %s\n", os.Args[1])
 	}
 }
 
