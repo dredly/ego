@@ -10,5 +10,8 @@
         - [x] Actually increase k factor for donut
     - [x] Refactor verbose mode thingy to use a BoolFunc
     - [x] Draws
-- [ ] Refactoring
+- [x] Refactoring
+    - [x] subcommand per file
+    - [x] separate subcommands for record decisive and record draw
+    - [x] get rid of repetition in the record command
 - [ ] Track actual games

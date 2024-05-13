@@ -6,7 +6,7 @@ import (
 )
 
 func Test_EloChange(t *testing.T) {
-	eloChange := EloChange(1750, 1810, 1, false)
+	eloChange := EloChange(1750, 1810, 1)
 	expectedEloChange := 11.7
 	if !equalWithinTolerance(t, eloChange, expectedEloChange, 0.1) {
 		t.Errorf("got eloChange of %f but wanted %f", eloChange, expectedEloChange)
