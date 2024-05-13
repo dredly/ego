@@ -26,42 +26,8 @@ func recordDecisive() {
 		multiplier = 2
 		return nil
 	})
-
 	recordCmd.Parse(os.Args[2:])
-
-	conn, err := db.New()
-	if err != nil {
-		logger.Fatalf("failed to get db connection: %v", err)
-	}
-
-	winner, err := conn.FindPlayerByName(*recordWinner)
-	if err != nil {
-		logger.Fatalf("failed to find winner by name: %v", err)
-	}
-	loser, err := conn.FindPlayerByName(*recordLoser)
-	if err != nil {
-		logger.Fatalf("failed to find loser by name: %v", err)
-	}
-
-	winnerELOInitial := winner.ELO
-	loserELOInitial := loser.ELO
-
-	winner.RecordResult(loserELOInitial, 1, multiplier)
-	loser.RecordResult(winnerELOInitial, 0, multiplier)
-
-	if err := conn.UpdatePlayer(winner); err != nil {
-		logger.Fatalf("failed to update winner elo: %v", err)
-	}
-	if err := conn.UpdatePlayer(loser); err != nil {
-		logger.Fatalf("failed to update loser elo: %v", err)
-	}
-
-	if multiplier == 2 {
-		logger.Printf("recorded %s donut over %s\n", *recordWinner, *recordLoser)
-	} else {
-		logger.Printf("recorded %s win over %s\n", *recordWinner, *recordLoser)
-	}
-	logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", *recordWinner, winnerELOInitial, winner.ELO, *recordLoser, loserELOInitial, loser.ELO)
+	handleRecording(*recordWinner, *recordLoser, 1, multiplier)
 }
 
 func recordDraw() {
@@ -71,15 +37,20 @@ func recordDraw() {
 	if len(os.Args) < 4 {
 		logger.Fatal("expected 2 player names when recording draw")
 	}
+	handleRecording(os.Args[3], os.Args[4], 0.5, 1)
+}
+
+func handleRecording(playerName1, playerName2 string, score float64, multiplier int) {
 	conn, err := db.New()
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}
-	player1, err := conn.FindPlayerByName(os.Args[3])
+
+	player1, err := conn.FindPlayerByName(playerName1)
 	if err != nil {
 		logger.Fatalf("failed to find player by name: %v", err)
 	}
-	player2, err := conn.FindPlayerByName(os.Args[4])
+	player2, err := conn.FindPlayerByName(playerName2)
 	if err != nil {
 		logger.Fatalf("failed to find player by name: %v", err)
 	}
@@ -87,8 +58,8 @@ func recordDraw() {
 	player1ELOInitial := player1.ELO
 	player2ELOInitial := player2.ELO
 
-	player1.RecordResult(player2ELOInitial, 0.5, 1)
-	player2.RecordResult(player1ELOInitial, 0.5, 1)
+	player1.RecordResult(player2ELOInitial, score, multiplier)
+	player2.RecordResult(player1ELOInitial,  1 - score, multiplier)
 
 	if err := conn.UpdatePlayer(player1); err != nil {
 		logger.Fatalf("failed to update elo: %v", err)
@@ -97,6 +68,15 @@ func recordDraw() {
 		logger.Fatalf("failed to update elo: %v", err)
 	}
 
-	logger.Printf("recorded draw between %s and %s", player1.Name, player2.Name)
-	logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", player1.Name, player1ELOInitial, player1.ELO, player2.Name, player2ELOInitial, player2.ELO)
+	if score == 0.5 {
+		logger.Printf("recorded draw between %s and %s", playerName1, playerName2)
+	} else {
+		if multiplier == 2 {
+			logger.Printf("recorded %s donut over %s\n", playerName1, playerName2)
+		} else {
+			logger.Printf("recorded %s win over %s\n", playerName1, playerName2)
+		}
+	}
+
+	logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", playerName1, player1ELOInitial, player1.ELO, playerName2, player2ELOInitial, player2.ELO)
 }
