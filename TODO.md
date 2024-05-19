@@ -17,6 +17,6 @@
 - [ ] Track actual games
     - [x] Create games table
     - [x] Add option to specify elo when adding a player
-    - [ ] Add elo change data to games table
+    - [x] Add elo change data to games table
     - [ ] Update record command to record games
     - [ ] Implement elo recalculation on new game

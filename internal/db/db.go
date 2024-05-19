@@ -60,6 +60,10 @@ func (conn DBConnection) Initialise() error {
 		player2id INTEGER,
 		player1points INTEGER,
 		player2points INTEGER,
+		player1elobefore REAL,
+		player2elobefore REAL,
+		player1eloafter REAL,
+		player2eloafter REAL,
 		played DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(player1id) REFERENCES players(id) ON DELETE SET NULL,
 		FOREIGN KEY(player2id) REFERENCES players(id) ON DELETE SET NULL
