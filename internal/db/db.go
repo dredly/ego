@@ -53,6 +53,16 @@ func (conn DBConnection) Initialise() error {
         name  TEXT NOT NULL,
 		elo   REAL,
 		CONSTRAINT name_unique UNIQUE (name)
+	);
+	CREATE TABLE IF NOT EXISTS games (
+		id INTEGER PRIMARY KEY,
+		player1id INTEGER,
+		player2id INTEGER,
+		player1points INTEGER,
+		player2points INTEGER,
+		played DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY(player1id) REFERENCES players(id) ON DELETE SET NULL,
+		FOREIGN KEY(player2id) REFERENCES players(id) ON DELETE SET NULL
 	);`)
 	if err != nil {
 		return err

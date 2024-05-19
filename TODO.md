@@ -15,3 +15,7 @@
     - [x] separate subcommands for record decisive and record draw
     - [x] get rid of repetition in the record command
 - [ ] Track actual games
+    - [x] Create games table
+    - [ ] Add option to specify elo when adding a player
+    - [ ] Update record command to record games
+    - [ ] Implement elo recalculation on new game
