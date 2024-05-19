@@ -19,4 +19,5 @@
     - [x] Add option to specify elo when adding a player
     - [x] Add elo change data to games table
     - [ ] Update record command to record games
-    - [ ] Implement elo recalculation on new game
+        - [x] Use new arguments
+        - [ ] Insert into games table
