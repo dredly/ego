@@ -104,13 +104,14 @@ func (conn DBConnection) Show() ([]types.Player, error) {
 }
 
 func (conn DBConnection) FindPlayerByName(name string) (types.Player, error) {
-	row := conn.db.QueryRow("SELECT elo FROM players WHERE name = $1", name)
+	row := conn.db.QueryRow("SELECT id, elo FROM players WHERE name = $1", name)
+	var id int
 	var elo float64
-	err := row.Scan(&elo)
+	err := row.Scan(&id, &elo)
 	if err != nil {
 		return types.Player{}, err
 	}
-	return types.Player{Name: name, ELO: elo}, nil
+	return types.Player{ID: id, Name: name, ELO: elo}, nil
 }
 
 func (conn DBConnection) UpdatePlayer(p types.Player) error {
@@ -122,6 +123,10 @@ func (conn DBConnection) UpdatePlayer(p types.Player) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (conn DBConnection) AddGame(g types.Game) error {
 	return nil
 }
 

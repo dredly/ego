@@ -20,4 +20,5 @@
     - [x] Add elo change data to games table
     - [ ] Update record command to record games
         - [x] Use new arguments
+        - [x] Get Player id when querying from DB
         - [ ] Insert into games table
