@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/dredly/ego/internal/db"
+	"github.com/dredly/ego/internal/types"
 )
 
 func RunRecord() {
@@ -52,6 +53,20 @@ func RunRecord() {
 	player1.RecordResult(player2ELOInitial, eloScore, multiplier)
 	player2.RecordResult(player1ELOInitial, 1 - eloScore, multiplier)
 
+	game := types.Game{
+		Player1ID: player1.ID,
+		Player2ID: player2.ID,
+		Player1Points: p1Points,
+		Player2Points: p2Points,
+		Player1ELOBefore: player1ELOInitial,
+		Player2ELOBefore: player2ELOInitial,
+		Player1ELOAfter: player1.ELO,
+		Player2ELOAfter: player2.ELO,
+	}
+	
+	if err := conn.AddGame(game); err != nil {
+		logger.Fatalf("failed to add game: %v", err)
+	}
 	if err := conn.UpdatePlayer(player1); err != nil {
 		logger.Fatalf("failed to update elo: %v", err)
 	}

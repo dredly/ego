@@ -18,7 +18,11 @@
     - [x] Create games table
     - [x] Add option to specify elo when adding a player
     - [x] Add elo change data to games table
-    - [ ] Update record command to record games
+    - [x] Update record command to record games
         - [x] Use new arguments
         - [x] Get Player id when querying from DB
-        - [ ] Insert into games table
+        - [x] Insert into games table
+    - [ ] Update show command to have option for showing games
+- [ ] Show most recent n games
+- [ ] Show games involving one player
+- [ ] Plot a players elo over time

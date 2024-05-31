@@ -127,6 +127,23 @@ func (conn DBConnection) UpdatePlayer(p types.Player) error {
 }
 
 func (conn DBConnection) AddGame(g types.Game) error {
+	stmt, err := conn.db.Prepare(`INSERT INTO games (
+		player1id,
+		player2id,
+		player1points,
+		player2points,
+		player1elobefore,
+		player2elobefore,
+		player1eloafter,
+		player2eloafter
+	) values ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(g.Player1ID, g.Player2ID, g.Player1Points, g.Player2Points, g.Player1ELOBefore, g.Player2ELOBefore, g.Player1ELOAfter, g.Player2ELOAfter) 
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
