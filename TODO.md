@@ -26,3 +26,5 @@
 - [ ] Show most recent n games
 - [ ] Show games involving one player
 - [ ] Plot a players elo over time
+- [ ] Delete players
+- [ ] Undo recordings
