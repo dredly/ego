@@ -14,4 +14,17 @@
     - [x] subcommand per file
     - [x] separate subcommands for record decisive and record draw
     - [x] get rid of repetition in the record command
-- [ ] Track actual games
+- [x] Track actual games
+    - [x] Create games table
+    - [x] Add option to specify elo when adding a player
+    - [x] Add elo change data to games table
+    - [x] Update record command to record games
+        - [x] Use new arguments
+        - [x] Get Player id when querying from DB
+        - [x] Insert into games table
+    - [x] Update show command to have option for showing games
+- [ ] Show most recent n games
+- [ ] Show games involving one player
+- [ ] Plot a players elo over time
+- [ ] Delete players
+- [ ] Undo recordings
