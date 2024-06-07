@@ -11,6 +11,10 @@ Initialises a local sqlite db in the location  ```~/.ego/ego.db```
 
 Adds a player to the leaderboard with the specified name and a default starting elo of 1000. Name must be unique.
 
+```ego add -name <player name> -elo <elo>```
+
+Adds a player to the leaderboard with the specified name and starting elo
+
 ```ego show```
 
 Displays the leaderboard
