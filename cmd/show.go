@@ -32,7 +32,7 @@ func RunShow() {
 }
 
 func showAllPlayers(conn *db.DBConnection) {
-	players, err:= conn.Show()
+	players, err := conn.AllPlayers()
 	if err != nil {
 		logger.Fatalf("failed to show all players: %v", err)
 	}
@@ -43,5 +43,12 @@ func showAllPlayers(conn *db.DBConnection) {
 }
 
 func showAllGames(conn *db.DBConnection) {
-
+	games, err := conn.AllGames()
+	if err != nil {
+		logger.Fatalf("failed to show all games: %v", err)
+	}
+	logger.Printf("Past Games")
+	for _, g := range games {
+		logger.Printf("%s vs %s --- Score: %d - %d. Played %s", g.Player1Name, g.Player2Name, g.Player1Points, g.Player2Points, g.Played)
+	}
 }

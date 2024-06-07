@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/dredly/ego/internal/types"
 	_ "github.com/mattn/go-sqlite3"
@@ -86,7 +87,7 @@ func (conn DBConnection) AddPlayer(p types.Player) error {
 	return nil
 }
 
-func (conn DBConnection) Show() ([]types.Player, error) {
+func (conn DBConnection) AllPlayers() ([]types.Player, error) {
 	rows, err := conn.db.Query("SELECT name, elo FROM players ORDER BY elo DESC")
 	if err != nil {
 		return nil, err
@@ -145,6 +146,36 @@ func (conn DBConnection) AddGame(g types.Game) error {
 		return err
 	}
 	return nil
+}
+
+func (conn DBConnection) AllGames() ([]types.GameDisplay, error) {
+	rows, err := conn.db.Query(`
+		SELECT p1.name, p2.name, g.player1Points, g.player2Points, g.played 
+		FROM games AS g 
+		INNER JOIN players as p1 ON g.player1id = p1.id
+		INNER JOIN players as p2 ON g.player2id = p2.id
+		ORDER BY g.played DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var games []types.GameDisplay
+	for rows.Next() {
+		var p1Name, p2Name string
+		var p1Points, p2Points int
+		var played time.Time
+		rows.Scan(&p1Name, &p2Name, &p1Points, &p2Points, &played)
+		games = append(games, types.GameDisplay{
+			Player1Name: p1Name,
+			Player2Name: p2Name,
+			Player1Points: p1Points,
+			Player2Points: p2Points,
+			Played: played,
+		})	
+	}
+	return games, nil
 }
 
 func exists(path string) (bool, error) {

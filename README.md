@@ -15,15 +15,11 @@ Adds a player to the leaderboard with the specified name and a default starting 
 
 Displays the leaderboard
 
-```ego record -w <winner name> -l <loser name>```
+```ego show -games```
 
-Records a win for player with name ```<winner name>``` over player with name ```<loser name>```
+Displays all previous games (newest to oldest)
 
-```ego record -w <winner name> -l <loser name> -donut```
+```ego record -p1 <name of player 1> -p2 <name of player 2> 11-3```
 
-Records a "donut" (when the loser scores 0 points). Counts double
-
-```ego record draw <player1 name> <player2 name>```
-
-Records a draw between player with name ```<player1 name>``` and player with name ```<player2 name>```
+Records an 11-3 win for player 1 over player 2. Note that if the loser scores 0 points, the elo change will be doubled
 

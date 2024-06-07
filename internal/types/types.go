@@ -30,3 +30,9 @@ type Game struct {
 	Player1ELOBefore, Player2ELOBefore, Player1ELOAfter, Player2ELOAfter float64
 	Played time.Time
 }
+
+type GameDisplay struct {
+	Player1Name, Player2Name string
+	Player1Points, Player2Points int
+	Played time.Time
+}
