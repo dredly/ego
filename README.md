@@ -1,6 +1,6 @@
 # ego
 A bare-bones command line tool for elo tracking written in go.
-Uses a local sqlite database under the hood. Only keeps track of player names and their elo, no other stats.
+Uses a local sqlite database under the hood.
 
 ## Commands
 ```ego create```
