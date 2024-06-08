@@ -148,14 +148,25 @@ func (conn DBConnection) AddGame(g types.Game) error {
 	return nil
 }
 
-func (conn DBConnection) AllGames() ([]types.GameDisplay, error) {
-	rows, err := conn.db.Query(`
+func (conn DBConnection) AllGames(limit uint) ([]types.GameDisplay, error) {
+	q := `
 		SELECT p1.name, p2.name, g.player1Points, g.player2Points, g.played 
 		FROM games AS g 
 		INNER JOIN players as p1 ON g.player1id = p1.id
 		INNER JOIN players as p2 ON g.player2id = p2.id
 		ORDER BY g.played DESC
-	`)
+	`
+
+	var rows *sql.Rows
+	var err error
+
+	if limit > 0 {
+		q += " LIMIT $1"
+		rows, err = conn.db.Query(q, limit)
+	} else {
+		rows, err = conn.db.Query(q)
+	}
+
 	if err != nil {
 		return nil, err
 	}

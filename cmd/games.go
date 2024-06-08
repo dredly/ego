@@ -9,6 +9,7 @@ import (
 
 func RunGames() {
 	gamesCmd := flag.NewFlagSet("games", flag.ExitOnError)
+	limit := gamesCmd.Uint("limit", 0, "number of games to show, will show all by default or if set to 0")
 	addVerboseFlag(gamesCmd)
 	gamesCmd.Parse(os.Args[2:])
 
@@ -17,7 +18,7 @@ func RunGames() {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}
 
-	games, err := conn.AllGames()
+	games, err := conn.AllGames(*limit)
 	if err != nil {
 		logger.Fatalf("failed to show all games: %v", err)
 	}

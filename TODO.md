@@ -25,7 +25,8 @@
     - [x] Update show command to have option for showing games
 - [ ] Show most recent n games
     - [x] Refactor commands to be ego leaderboard and ego games instead of 2 variants of show
-    - [ ] Optional argument for how many games to show
+    - [x] Optional argument for how many games to show
+    - [ ] Refactor db package
 - [ ] Show games involving one player
 - [ ] Plot a players elo over time
 - [ ] Delete players
