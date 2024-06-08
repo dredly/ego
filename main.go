@@ -19,8 +19,10 @@ func main() {
 		cmd.RunCreate()
     case "add":
         cmd.RunAdd()
-	case "show":
-		cmd.RunShow()
+	case "leaderboard":
+		cmd.RunLeaderboard()
+	case "games":
+		cmd.RunGames()
 	case "record":
 		cmd.RunRecord()
     default:

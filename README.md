@@ -15,13 +15,17 @@ Adds a player to the leaderboard with the specified name and a default starting 
 
 Adds a player to the leaderboard with the specified name and starting elo
 
-```ego show```
+```ego leaderboard```
 
 Displays the leaderboard
 
-```ego show -games```
+```ego games```
 
 Displays all previous games (newest to oldest)
+
+```ego games -limit <n>```
+
+Displays the ```n``` most recent games
 
 ```ego record -p1 <name of player 1> -p2 <name of player 2> 11-3```
 
