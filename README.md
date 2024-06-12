@@ -25,7 +25,12 @@ Displays all previous games (newest to oldest)
 
 ```ego games -limit <n>```
 
+
 Displays the ```n``` most recent games
+
+```ego games -player <player name>```
+
+Displays all previous games involving one player
 
 ```ego record -p1 <name of player 1> -p2 <name of player 2> 11-3```
 

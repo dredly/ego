@@ -1,7 +1,7 @@
 package db
 
 import (
-	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/dredly/ego/internal/types"
@@ -28,25 +28,29 @@ func (conn DBConnection) AddGame(g types.Game) error {
 	return nil
 }
 
-func (conn DBConnection) AllGames(limit uint) ([]types.GameDisplay, error) {
-	q := `
+func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDisplay, error) {
+	all_games_query := `
 		SELECT p1.name, p2.name, g.player1Points, g.player2Points, g.played 
 		FROM games AS g 
 		INNER JOIN players as p1 ON g.player1id = p1.id
 		INNER JOIN players as p2 ON g.player2id = p2.id
-		ORDER BY g.played DESC
 	`
+	ordering := " ORDER BY g.played DESC"
 
-	var rows *sql.Rows
-	var err error
+	var playerFilter string
+	var limitClause string
+	args := []any{}
 
+	if playerName != "" {
+		args = append(args, playerName)
+		playerFilter = fmt.Sprintf(" WHERE p1.name = $%d OR p2.name = $%d", len(args), len(args)) 
+	}
 	if limit > 0 {
-		q += " LIMIT $1"
-		rows, err = conn.db.Query(q, limit)
-	} else {
-		rows, err = conn.db.Query(q)
+		args = append(args, limit)
+		limitClause = fmt.Sprintf(" LIMIT $%d", len(args)) 
 	}
 
+	rows, err := conn.db.Query(all_games_query + playerFilter + ordering + limitClause, args...)
 	if err != nil {
 		return nil, err
 	}
