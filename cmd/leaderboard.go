@@ -12,7 +12,7 @@ func RunLeaderboard() {
 	addVerboseFlag(leaderboardCmd)
 	leaderboardCmd.Parse(os.Args[2:])
 
-	conn, err := db.New()
+	conn, err := db.New(verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}

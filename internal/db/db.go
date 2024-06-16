@@ -2,17 +2,21 @@ package db
 
 import (
 	"database/sql"
+	"log"
 	"os"
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var logger = log.New(os.Stdout, "db ", 0)
+
 type DBConnection struct {
 	db *sql.DB
+	sqlLogsEnabled bool
 }
 
-func New() (*DBConnection, error) {
+func New(logQueries bool) (*DBConnection, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -43,11 +47,14 @@ func New() (*DBConnection, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DBConnection{db}, nil
+	return &DBConnection{
+		db: db,
+		sqlLogsEnabled: logQueries,
+	}, nil
 }
 
 func (conn DBConnection) Initialise() error {
-	_, err := conn.db.Exec(`CREATE TABLE IF NOT EXISTS players (
+	sql := `CREATE TABLE IF NOT EXISTS players (
 		id    INTEGER PRIMARY KEY,
         name  TEXT NOT NULL,
 		elo   REAL,
@@ -66,7 +73,10 @@ func (conn DBConnection) Initialise() error {
 		played DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(player1id) REFERENCES players(id) ON DELETE SET NULL,
 		FOREIGN KEY(player2id) REFERENCES players(id) ON DELETE SET NULL
-	);`)
+	);`
+	conn.logSQL(sql)
+
+	_, err := conn.db.Exec(sql)
 	if err != nil {
 		return err
 	}
@@ -78,4 +88,10 @@ func exists(path string) (bool, error) {
     if err == nil { return true, nil }
     if os.IsNotExist(err) { return false, nil }
     return false, err
+}
+
+func (conn DBConnection) logSQL(s string) {
+	if conn.sqlLogsEnabled {
+		logger.Print("Running SQL: " + s)
+	}
 }

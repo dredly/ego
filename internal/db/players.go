@@ -3,7 +3,9 @@ package db
 import "github.com/dredly/ego/internal/types"
 
 func (conn DBConnection) AddPlayer(p types.Player) error {
-	stmt, err := conn.db.Prepare("INSERT INTO players (name, elo) values ($1, $2)")
+	sql := "INSERT INTO players (name, elo) values ($1, $2)"
+	conn.logSQL(sql)
+	stmt, err := conn.db.Prepare(sql)
 	if err != nil {
 		return err
 	}
@@ -15,7 +17,9 @@ func (conn DBConnection) AddPlayer(p types.Player) error {
 }
 
 func (conn DBConnection) AllPlayers() ([]types.Player, error) {
-	rows, err := conn.db.Query("SELECT name, elo FROM players ORDER BY elo DESC")
+	sql := "SELECT name, elo FROM players ORDER BY elo DESC"
+	conn.logSQL(sql)
+	rows, err := conn.db.Query(sql)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +36,9 @@ func (conn DBConnection) AllPlayers() ([]types.Player, error) {
 }
 
 func (conn DBConnection) FindPlayerByName(name string) (types.Player, error) {
-	row := conn.db.QueryRow("SELECT id, elo FROM players WHERE name = $1", name)
+	sql := "SELECT id, elo FROM players WHERE name = $1"
+	conn.logSQL(sql)
+	row := conn.db.QueryRow(sql, name)
 	var id int
 	var elo float64
 	err := row.Scan(&id, &elo)
@@ -43,7 +49,9 @@ func (conn DBConnection) FindPlayerByName(name string) (types.Player, error) {
 }
 
 func (conn DBConnection) UpdatePlayer(p types.Player) error {
-	stmt, err := conn.db.Prepare("UPDATE players SET elo = $1 WHERE name = $2")
+	sql := "UPDATE players SET elo = $1 WHERE name = $2"
+	conn.logSQL(sql)
+	stmt, err := conn.db.Prepare(sql)
 	if err != nil {
 		return err
 	}

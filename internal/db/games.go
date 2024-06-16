@@ -8,7 +8,7 @@ import (
 )
 
 func (conn DBConnection) AddGame(g types.Game) error {
-	stmt, err := conn.db.Prepare(`INSERT INTO games (
+	sql := `INSERT INTO games (
 		player1id,
 		player2id,
 		player1points,
@@ -17,7 +17,9 @@ func (conn DBConnection) AddGame(g types.Game) error {
 		player2elobefore,
 		player1eloafter,
 		player2eloafter
-	) values ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	) values ($1, $2, $3, $4, $5, $6, $7, $8)`
+	conn.logSQL(sql)
+	stmt, err := conn.db.Prepare(sql)
 	if err != nil {
 		return err
 	}
@@ -50,7 +52,10 @@ func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDispl
 		limitClause = fmt.Sprintf(" LIMIT $%d", len(args)) 
 	}
 
-	rows, err := conn.db.Query(all_games_query + playerFilter + ordering + limitClause, args...)
+	sql := all_games_query + playerFilter + ordering + limitClause
+	conn.logSQL(sql)
+
+	rows, err := conn.db.Query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
