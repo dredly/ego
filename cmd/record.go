@@ -30,7 +30,7 @@ func RunRecord() {
 		logger.Fatalf("failed to parse points for player 2: %v", err)
 	}
 
-	conn, err := db.New()
+	conn, err := db.New(verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}

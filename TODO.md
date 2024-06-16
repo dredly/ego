@@ -28,7 +28,7 @@
     - [x] Optional argument for how many games to show
     - [x] Refactor db package
 - [x] Show games involving one player
-- [ ] verbose log db queries
+- [x] verbose log db queries
 - [ ] e2e tests
 - [ ] Plot a players elo over time
 - [ ] Delete players
