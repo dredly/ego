@@ -30,6 +30,8 @@
 - [x] Show games involving one player
 - [x] verbose log db queries
 - [ ] e2e tests
+    - [x] Get framework in place
+    - [ ] Add some relevant test cases
 - [ ] Plot a players elo over time
 - [ ] Delete players
 - [ ] Undo recordings
