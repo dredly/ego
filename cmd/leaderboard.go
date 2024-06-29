@@ -13,7 +13,7 @@ func RunLeaderboard() {
 	addDbPathFlag(leaderboardCmd)
 	leaderboardCmd.Parse(os.Args[2:])
 
-	conn, err := db.New(dbPath, verbose)
+	conn, err := db.Connect(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}

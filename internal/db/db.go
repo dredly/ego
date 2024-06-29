@@ -16,8 +16,21 @@ type DBConnection struct {
 	sqlLogsEnabled bool
 }
 
+// New will create the db file if necessary, then return a connection to it
 func New(dbPath string, logQueries bool) (*DBConnection, error) {
 	db, err := createDB(dbPath)
+	if err != nil {
+		return nil, err
+	}
+	return &DBConnection{
+		db: db,
+		sqlLogsEnabled: logQueries,
+	}, nil
+}
+
+// Connect will return a connection to an existing db file only
+func Connect(dbPath string, logQueries bool) (*DBConnection, error) {
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
 	}

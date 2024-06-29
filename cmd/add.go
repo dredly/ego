@@ -20,7 +20,7 @@ func RunAdd() {
 	if *elo <= 0 {
 		logger.Fatal("ELO must be a positive number")
 	}
-	conn, err := db.New(dbPath, verbose)
+	conn, err := db.Connect(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}
