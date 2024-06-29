@@ -13,6 +13,7 @@ import (
 func RunRecord() {
 	recordCmd := flag.NewFlagSet("record", flag.ExitOnError)
 	addVerboseFlag(recordCmd)
+	addDbPathFlag(recordCmd)
 	playerName1 := recordCmd.String("p1", "", "name of player 1")
 	playerName2 := recordCmd.String("p2", "", "name of player 2")
 	score := recordCmd.String("score", "", "final score of the game, 2 integers separated by a dash, e.g. '3-2'")
@@ -30,7 +31,7 @@ func RunRecord() {
 		logger.Fatalf("failed to parse points for player 2: %v", err)
 	}
 
-	conn, err := db.New(verbose)
+	conn, err := db.New(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}

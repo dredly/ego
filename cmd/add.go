@@ -15,11 +15,12 @@ func RunAdd() {
 	name := addCmd.String("name", "", "name of the player to add to the leaderboard")
 	elo := addCmd.Float64("elo", defaultStartingELO, "starting elo for the player")
 	addVerboseFlag(addCmd)
+	addDbPathFlag(addCmd)
 	addCmd.Parse(os.Args[2:])
 	if *elo <= 0 {
 		logger.Fatal("ELO must be a positive number")
 	}
-	conn, err := db.New(verbose)
+	conn, err := db.New(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}

@@ -10,8 +10,9 @@ import (
 func RunCreate() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	addVerboseFlag(createCmd)
+	addDbPathFlag(createCmd)
 	createCmd.Parse(os.Args[2:])
-	conn, err := db.New(verbose)
+	conn, err := db.New(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 var logger = log.New(os.Stdout, "", 0)
+var dbPath string
 var verbose bool
 
 func addVerboseFlag(subCommand *flag.FlagSet) {
@@ -14,6 +15,10 @@ func addVerboseFlag(subCommand *flag.FlagSet) {
 		verbose = true
 		return nil
 	})
+}
+
+func addDbPathFlag(subCommand *flag.FlagSet) {
+	subCommand.StringVar(&dbPath, "dbpath", "", "path to the database, default ~/.ego/ego.db")
 }
 
 func verboseLog(message string) {

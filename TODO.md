@@ -31,6 +31,7 @@
 - [x] verbose log db queries
 - [ ] e2e tests
     - [x] Get framework in place
+    - [x] enable specifying a different db path
     - [ ] Add some relevant test cases
 - [ ] Plot a players elo over time
 - [ ] Delete players

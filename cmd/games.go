@@ -13,9 +13,10 @@ func RunGames() {
 	limit := gamesCmd.Uint("limit", 0, "number of games to show, will show all by default or if set to 0")
 	player := gamesCmd.String("player", "", "if specified, will only show games for that player")
 	addVerboseFlag(gamesCmd)
+	addDbPathFlag(gamesCmd)
 	gamesCmd.Parse(os.Args[2:])
 
-	conn, err := db.New(verbose)
+	conn, err := db.New(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}
