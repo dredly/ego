@@ -34,7 +34,8 @@
     - [x] enable specifying a different db path
     - [x] edge case/error test cases
     - [x] should only try to create a new db when using the create subcommand
-    - [ ] Add some relevant test cases
+    - [x] Utility method for running and verifying output of command
+    - [ ] Happy path test
 - [ ] Plot a players elo over time
 - [ ] Delete players
 - [ ] Undo recordings
