@@ -16,34 +16,21 @@ type DBConnection struct {
 	sqlLogsEnabled bool
 }
 
-func New(logQueries bool) (*DBConnection, error) {
-	home, err := os.UserHomeDir()
+// New will create the db file if necessary, then return a connection to it
+func New(dbPath string, logQueries bool) (*DBConnection, error) {
+	db, err := createDB(dbPath)
 	if err != nil {
 		return nil, err
 	}
-	dirExists, err := exists(filepath.Join(home, ".ego"))
-	if err != nil {
-		return nil, err
-	}
-	if !dirExists {
-		err := os.MkdirAll(filepath.Join(home, ".ego"), os.ModePerm)
-		if err != nil {
-			return nil, err
-		}
-	}
-	pathToDB := filepath.Join(home, ".ego", "ego.db")
-	dbFileExists, err := exists(pathToDB)
-	if err != nil {
-		return nil, err
-	}
-	if !dbFileExists {
-		f, err := os.Create(pathToDB)
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-	}
-	db, err := sql.Open("sqlite3", pathToDB)
+	return &DBConnection{
+		db: db,
+		sqlLogsEnabled: logQueries,
+	}, nil
+}
+
+// Connect will return a connection to an existing db file only
+func Connect(dbPath string, logQueries bool) (*DBConnection, error) {
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
 	}
@@ -81,6 +68,69 @@ func (conn DBConnection) Initialise() error {
 		return err
 	}
 	return nil
+}
+
+func createDB(path string) (*sql.DB, error) {
+	if path == "" {
+		return createDBDefault()
+	}
+	return createDBFromPath(path)
+}
+
+func createDBDefault() (*sql.DB, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	dirExists, err := exists(filepath.Join(home, ".ego"))
+	if err != nil {
+		return nil, err
+	}
+	if !dirExists {
+		err := os.MkdirAll(filepath.Join(home, ".ego"), os.ModePerm)
+		if err != nil {
+			return nil, err
+		}
+	}
+	pathToDB := filepath.Join(home, ".ego", "ego.db")
+	dbFileExists, err := exists(pathToDB)
+	if err != nil {
+		return nil, err
+	}
+	if !dbFileExists {
+		f, err := os.Create(pathToDB)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+	}
+	return sql.Open("sqlite3", pathToDB)
+}
+
+func createDBFromPath(path string) (*sql.DB, error) {
+	dir := filepath.Dir(path)
+	dirExists, err := exists(dir)
+	if err != nil {
+		return nil, err
+	}
+	if !dirExists {
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return nil, err
+		}
+	}
+	dbFileExists, err := exists(path)
+	if err != nil {
+		return nil, err
+	}
+	if !dbFileExists {
+		f, err := os.Create(path)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+	}
+	return sql.Open("sqlite3", path)
 }
 
 func exists(path string) (bool, error) {

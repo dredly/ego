@@ -29,7 +29,13 @@
     - [x] Refactor db package
 - [x] Show games involving one player
 - [x] verbose log db queries
-- [ ] e2e tests
+- [x] e2e tests
+    - [x] Get framework in place
+    - [x] enable specifying a different db path
+    - [x] edge case/error test cases
+    - [x] should only try to create a new db when using the create subcommand
+    - [x] Utility method for running and verifying output of command
+    - [x] Happy path test
+- [ ] Undo last recording
 - [ ] Plot a players elo over time
 - [ ] Delete players
-- [ ] Undo recordings
