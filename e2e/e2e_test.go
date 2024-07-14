@@ -35,6 +35,13 @@ func TestBasicHappyPath(t *testing.T) {
 	execAndVerify(t, []string{"create", dbPathArg}, "Successfully initialised leaderboard", "")
 	execAndVerify(t, []string{"add", "-name=Player1", dbPathArg}, "added new player Player1 with starting ELO 1000", "")
 	execAndVerify(t, []string{"add", "-name=Player2", dbPathArg}, "added new player Player2 with starting ELO 1000", "")
+	execAndVerify(
+		t, 
+		[]string{"record", "-p1=Player1", "-p2=Player2", "-score=11-6", dbPathArg}, 
+		"Recorded result 11-6 between Player1 and Player2\nPlayer1 elo: 1000.00 -> 1010.00. Player2 elo: 1000.00 -> 990.00", 
+		"",
+	)
+	execAndVerify(t, []string{"leaderboard", dbPathArg}, "Leaderboard\n1. Player1: 1010.00\n2. Player2: 990.00", "")
 }
 
 func TestRunWithoutSubcommand(t *testing.T) {
