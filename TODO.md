@@ -38,7 +38,7 @@
     - [x] Happy path test
 - [ ] Undo last recording + general maintenance
     - [x] BUG: fix connecting to db with default path
-    - [ ] Refactor row scanning
+    - [x] Refactor row scanning
     - [ ] Include ID in types.Game
     - [ ] Undo last recording
 - [ ] Plot a players elo over time
