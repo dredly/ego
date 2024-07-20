@@ -30,7 +30,7 @@ func New(dbPath string, logQueries bool) (*DBConnection, error) {
 
 // Connect will return a connection to an existing db file only
 func Connect(dbPath string, logQueries bool) (*DBConnection, error) {
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := connectDB(dbPath)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +131,21 @@ func createDBFromPath(path string) (*sql.DB, error) {
 		defer f.Close()
 	}
 	return sql.Open("sqlite3", path)
+}
+
+func connectDB(path string) (*sql.DB, error) {
+	if path == "" {
+		return connectDBDefault()
+	}
+	return sql.Open("sqlite3", path)
+}
+
+func connectDBDefault() (*sql.DB, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	return sql.Open("sqlite3",filepath.Join(home, ".ego", "ego.db"))
 }
 
 func exists(path string) (bool, error) {
