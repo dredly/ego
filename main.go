@@ -25,6 +25,8 @@ func main() {
 		cmd.RunGames()
 	case "record":
 		cmd.RunRecord()
+	case "undo":
+		cmd.RunUndo()
     default:
 		logger.Fatalf("unrecognised subcommand: %s\n", os.Args[1])
 	}

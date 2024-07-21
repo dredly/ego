@@ -69,15 +69,34 @@ func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDispl
 	return games, nil
 }
 
-func (conn DBConnection) MostRecentGame() (types.Game, error) {
+func (conn DBConnection) DeleteMostRecentGame() (types.Game, error) {
 	sql := `
-		SELECT id, player1id, player2id, player1points, player2points, player1name, player2name, player1elobefore, player2elobefore 
-		FROM games 
-		ORDER BY played DESC 
-		LIMIT 1
+		DELETE
+		FROM games
+		WHERE played = (SELECT MAX(played) FROM games)
+		RETURNING
+			id,
+			player1id, player2id, 
+			player1points, player2points, 
+			player1elobefore, player2elobefore,  
+			player1eloafter, player2eloafter,
+			played
 	`
 	conn.logSQL(sql)
 
-	// TODO: complete this
-	return types.Game{}, nil
+	row := conn.db.QueryRow(sql)
+	var g types.Game
+	err := row.Scan(
+		&g.ID, 
+		&g.Player1ID, &g.Player2ID, 
+		&g.Player1Points, &g.Player2Points, 
+		&g.Player1ELOBefore, &g.Player2ELOBefore, 
+		&g.Player1ELOAfter, &g.Player2ELOAfter, 
+		&g.Played,
+	)
+
+	if err != nil {
+		return types.Game{}, err
+	}
+	return g, nil
 }

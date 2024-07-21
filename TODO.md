@@ -39,7 +39,13 @@
 - [ ] Undo last recording + general maintenance
     - [x] BUG: fix connecting to db with default path
     - [x] Refactor row scanning
-    - [ ] Include ID in types.Game
-    - [ ] Undo last recording
+    - [x] Include ID in types.Game
+    - [x] Undo last recording
+    - [x] Use returning clause for game
+    - [ ] Use returning clause wherever possible
+- [ ] Player stats
+    - [ ] Win rate
+    - [ ] Games Played
+    - [ ] Peak ELO
 - [ ] Plot a players elo over time
 - [ ] Delete players
