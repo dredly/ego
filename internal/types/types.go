@@ -26,7 +26,7 @@ func (p *Player) RecordResult(opponentELO, score float64, multiplier int) {
 }
 
 type Game struct {
-	Player1ID, Player2ID, Player1Points, Player2Points int
+	ID, Player1ID, Player2ID, Player1Points, Player2Points int
 	Player1ELOBefore, Player2ELOBefore, Player1ELOAfter, Player2ELOAfter float64
 	Played time.Time
 }

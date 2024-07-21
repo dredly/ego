@@ -17,7 +17,7 @@ func (conn DBConnection) AddPlayer(p types.Player) error {
 }
 
 func (conn DBConnection) AllPlayers() ([]types.Player, error) {
-	sql := "SELECT name, elo FROM players ORDER BY elo DESC"
+	sql := "SELECT id, name, elo FROM players ORDER BY elo DESC"
 	conn.logSQL(sql)
 	rows, err := conn.db.Query(sql)
 	if err != nil {
@@ -27,10 +27,9 @@ func (conn DBConnection) AllPlayers() ([]types.Player, error) {
 
 	var players []types.Player
 	for rows.Next() {
-		var name string
-		var elo float64
-		rows.Scan(&name, &elo)
-		players = append(players, types.Player{Name: name, ELO: elo})
+		var p types.Player
+		rows.Scan(&p.ID, &p.Name, &p.ELO)
+		players = append(players, p)
 	}
 	return players, nil
 }
@@ -39,13 +38,14 @@ func (conn DBConnection) FindPlayerByName(name string) (types.Player, error) {
 	sql := "SELECT id, elo FROM players WHERE name = $1"
 	conn.logSQL(sql)
 	row := conn.db.QueryRow(sql, name)
-	var id int
-	var elo float64
-	err := row.Scan(&id, &elo)
+	p := types.Player{
+		Name: name,
+	}
+	err := row.Scan(&p.ID, &p.ELO)
 	if err != nil {
 		return types.Player{}, err
 	}
-	return types.Player{ID: id, Name: name, ELO: elo}, nil
+	return p, nil
 }
 
 func (conn DBConnection) UpdatePlayer(p types.Player) error {
@@ -60,4 +60,23 @@ func (conn DBConnection) UpdatePlayer(p types.Player) error {
 		return err
 	}
 	return nil
+}
+
+func (conn DBConnection) UpdateELOByID(id int, newELO float64) (types.Player, error) {
+	sql := `
+		UPDATE players SET elo = $1
+		WHERE id = $2
+		RETURNING name, elo
+	`
+	conn.logSQL(sql)
+
+	row := conn.db.QueryRow(sql, newELO, id)
+	p := types.Player{
+		ID: id,
+	}
+	err := row.Scan(&p.Name, &p.ELO)
+	if err != nil {
+		return types.Player{}, err
+	}
+	return p, nil
 }

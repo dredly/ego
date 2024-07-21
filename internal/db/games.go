@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/dredly/ego/internal/types"
 )
@@ -63,17 +62,41 @@ func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDispl
 
 	var games []types.GameDisplay
 	for rows.Next() {
-		var p1Name, p2Name string
-		var p1Points, p2Points int
-		var played time.Time
-		rows.Scan(&p1Name, &p2Name, &p1Points, &p2Points, &played)
-		games = append(games, types.GameDisplay{
-			Player1Name: p1Name,
-			Player2Name: p2Name,
-			Player1Points: p1Points,
-			Player2Points: p2Points,
-			Played: played,
-		})	
+		var g types.GameDisplay
+		rows.Scan(&g.Player1Name, &g.Player2Name, &g.Player1Points, &g.Player2Points, &g.Played)
+		games = append(games, g)	
 	}
 	return games, nil
+}
+
+func (conn DBConnection) DeleteMostRecentGame() (types.Game, error) {
+	sql := `
+		DELETE
+		FROM games
+		WHERE played = (SELECT MAX(played) FROM games)
+		RETURNING
+			id,
+			player1id, player2id, 
+			player1points, player2points, 
+			player1elobefore, player2elobefore,  
+			player1eloafter, player2eloafter,
+			played
+	`
+	conn.logSQL(sql)
+
+	row := conn.db.QueryRow(sql)
+	var g types.Game
+	err := row.Scan(
+		&g.ID, 
+		&g.Player1ID, &g.Player2ID, 
+		&g.Player1Points, &g.Player2Points, 
+		&g.Player1ELOBefore, &g.Player2ELOBefore, 
+		&g.Player1ELOAfter, &g.Player2ELOAfter, 
+		&g.Played,
+	)
+
+	if err != nil {
+		return types.Game{}, err
+	}
+	return g, nil
 }

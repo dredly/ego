@@ -36,6 +36,16 @@
     - [x] should only try to create a new db when using the create subcommand
     - [x] Utility method for running and verifying output of command
     - [x] Happy path test
-- [ ] Undo last recording
-- [ ] Plot a players elo over time
+- [x] Undo last recording + general maintenance
+    - [x] BUG: fix connecting to db with default path
+    - [x] Refactor row scanning
+    - [x] Include ID in types.Game
+    - [x] Undo last recording
+    - [x] Use returning clause for game
+- [ ] Player stats
+    - [ ] Win rate
+    - [ ] Games Played
+    - [ ] Peak ELO
 - [ ] Delete players
+- [ ] Show head to head stats between 2 players
+- [ ] Plot a players elo over time
