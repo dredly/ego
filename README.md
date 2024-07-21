@@ -36,3 +36,6 @@ Displays all previous games involving one player
 
 Records an 11-3 win for player 1 over player 2. Note that if the loser scores 0 points, the elo change will be doubled
 
+```ego undo```
+
+Undo recording the last game. Removes the game itself from the database, and sets the players ELOs back to what they were before the game
