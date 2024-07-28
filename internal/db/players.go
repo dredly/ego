@@ -80,3 +80,33 @@ func (conn DBConnection) UpdateELOByID(id int, newELO float64) (types.Player, er
 	}
 	return p, nil
 }
+
+func (conn DBConnection) PeakELOForPlayer(name string) (float64, error) {
+	sql := `
+		SELECT MAX(ELO) AS peak_elo FROM (
+			SELECT MAX(g.player1elobefore, g.player1eloafter) AS elo
+			FROM games AS g
+			INNER JOIN players as p1 ON g.player1id = p1.id
+			WHERE p1.name = $1
+
+			UNION ALL
+
+			SELECT MAX(g.player2elobefore, g.player2eloafter) AS elo
+			FROM games AS g
+			INNER JOIN players as p2 ON g.player2id = p2.id
+			WHERE p2.name = $1
+		) AS historical_elo;
+	`
+
+	conn.logSQL(sql)
+
+	row := conn.db.QueryRow(sql, name)
+	var peakELO float64
+
+	err := row.Scan(&peakELO)
+	if err != nil {
+		return 0, err
+	}
+
+	return peakELO, nil
+}

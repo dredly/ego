@@ -43,9 +43,13 @@
     - [x] Undo last recording
     - [x] Use returning clause for game
 - [ ] Player stats
+    - [x] Peak ELO
     - [ ] Win rate
     - [ ] Games Played
-    - [ ] Peak ELO
+    - [ ] Allow picking which stats to display
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
-- [ ] Plot a players elo over time
+- [ ] ELO and time
+    - [ ] Show time when player was at peak ELO
+    - [ ] Plot ELO over time
+    - [ ] allow specifying time when recording game
