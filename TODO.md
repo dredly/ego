@@ -44,8 +44,8 @@
     - [x] Use returning clause for game
 - [ ] Player stats
     - [x] Peak ELO
-    - [ ] Win rate
-    - [ ] Games Played
+    - [x] Games Played
+    - [x] Win rate
     - [ ] Allow picking which stats to display
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
