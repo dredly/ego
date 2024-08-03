@@ -46,7 +46,8 @@
     - [x] Peak ELO
     - [x] Games Played
     - [x] Win rate
-    - [ ] Allow picking which stats to display
+    - [x] Allow picking which stats to display
+    - [ ] Documentation
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
 - [ ] ELO and time
