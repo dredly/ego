@@ -42,12 +42,13 @@
     - [x] Include ID in types.Game
     - [x] Undo last recording
     - [x] Use returning clause for game
-- [ ] Player stats
+- [x] Player stats
     - [x] Peak ELO
     - [x] Games Played
     - [x] Win rate
     - [x] Allow picking which stats to display
-    - [ ] Documentation
+    - [x] Documentation
+- [ ] Schema overhaul
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
 - [ ] ELO and time
