@@ -42,10 +42,16 @@
     - [x] Include ID in types.Game
     - [x] Undo last recording
     - [x] Use returning clause for game
-- [ ] Player stats
-    - [ ] Win rate
-    - [ ] Games Played
-    - [ ] Peak ELO
+- [x] Player stats
+    - [x] Peak ELO
+    - [x] Games Played
+    - [x] Win rate
+    - [x] Allow picking which stats to display
+    - [x] Documentation
+- [ ] Schema overhaul
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
-- [ ] Plot a players elo over time
+- [ ] ELO and time
+    - [ ] Show time when player was at peak ELO
+    - [ ] Plot ELO over time
+    - [ ] allow specifying time when recording game
