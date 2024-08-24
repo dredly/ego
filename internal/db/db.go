@@ -49,18 +49,17 @@ func (conn DBConnection) Initialise() error {
 	);
 	CREATE TABLE IF NOT EXISTS games (
 		id INTEGER PRIMARY KEY,
-		player1id INTEGER,
-		player2id INTEGER,
-		player1points INTEGER,
-		player2points INTEGER,
-		player1elobefore REAL,
-		player2elobefore REAL,
-		player1eloafter REAL,
-		player2eloafter REAL,
-		played DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY(player1id) REFERENCES players(id) ON DELETE SET NULL,
-		FOREIGN KEY(player2id) REFERENCES players(id) ON DELETE SET NULL
-	);`
+		played DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE TABLE IF NOT EXISTS player_games (
+		playerid INTEGER NOT NULL,
+		gameid INTEGER NOT NULL,
+		points INTEGER NOT NULL,
+		elobefore REAL NOT NULL,
+		eloafter REAL NOT NULL,
+		PRIMARY KEY (playerid, gameid)
+	);
+	`
 	conn.logSQL(sql)
 
 	_, err := conn.db.Exec(sql)

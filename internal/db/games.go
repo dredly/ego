@@ -6,6 +6,62 @@ import (
 	"github.com/dredly/ego/internal/types"
 )
 
+func (conn DBConnection) RecordGame(gr types.GameRecording) error {
+	tx, err := conn.db.Begin()
+    if err != nil {
+        return err
+    }
+
+	updatePlayerSQL := "UPDATE players SET elo = $1 WHERE name = $2"
+	conn.logSQL(updatePlayerSQL)
+	_, err = tx.Exec(updatePlayerSQL, gr.Player1.ELOAfter, gr.Player1.Player.Name)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(updatePlayerSQL, gr.Player2.ELOAfter, gr.Player2.Player.Name)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	insertGameSQL := "INSERT INTO games DEFAULT VALUES"
+	conn.logSQL(insertGameSQL)
+    result, err := tx.Exec(insertGameSQL)
+    if err != nil {
+        tx.Rollback()
+        return err
+    }
+    lastGameID, err := result.LastInsertId()
+    if err != nil {
+        tx.Rollback()
+        return err
+    }
+
+	insertPlayerGameSQL := `
+		INSERT INTO player_games
+		(gameid, playerid, points, elobefore, eloafter)
+		VALUES ($1, $2, $3, $4, $5), ($1, $6, $7, $8, $9)
+	`
+	conn.logSQL(insertPlayerGameSQL)
+	_, err = tx.Exec(insertPlayerGameSQL, 
+		lastGameID,
+		gr.Player1.Player.ID, gr.Player1.Points, gr.Player1.ELOBefore, gr.Player1.ELOAfter,
+		gr.Player2.Player.ID, gr.Player2.Points, gr.Player2.ELOBefore, gr.Player2.ELOAfter,
+	)
+	if err != nil {
+        tx.Rollback()
+        return err
+    }
+
+	err = tx.Commit()
+    if err != nil {
+        return err
+    }
+
+	return nil
+}
+
 func (conn DBConnection) AddGame(g types.Game) error {
 	sql := `INSERT INTO games (
 		player1id,

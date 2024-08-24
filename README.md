@@ -38,7 +38,7 @@ Displays the ```n``` most recent games
 Displays all previous games involving one player
 
 ### record
-```ego record -p1 <name of player 1> -p2 <name of player 2> 11-3```
+```ego record -p1 <name of player 1> -p2 <name of player 2> -score=11-3```
 
 Records an 11-3 win for player 1 over player 2. Note that if the loser scores 0 points, the elo change will be doubled
 

@@ -25,6 +25,19 @@ func (p *Player) RecordResult(opponentELO, score float64, multiplier int) {
 	p.ELO += change * float64(multiplier)
 }
 
+type GameRecording struct {
+	Player1 PlayerRecording
+	Player2 PlayerRecording
+}
+
+type PlayerRecording struct {
+	Player Player
+	Points int
+	ELOBefore float64
+	ELOAfter float64
+}
+
+
 type Game struct {
 	ID, Player1ID, Player2ID, Player1Points, Player2Points int
 	Player1ELOBefore, Player2ELOBefore, Player1ELOAfter, Player2ELOAfter float64

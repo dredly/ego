@@ -49,6 +49,13 @@
     - [x] Allow picking which stats to display
     - [x] Documentation
 - [ ] Schema overhaul
+    - [x] create command
+    - [x] add command (already works)
+    - [x] leaderboard command (already works)
+    - [x] record command
+    - [ ] games command
+    - [ ] undo command
+    - [ ] stats command
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
 - [ ] ELO and time
