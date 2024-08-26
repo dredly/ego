@@ -59,6 +59,20 @@ func (conn DBConnection) Initialise() error {
 		eloafter REAL NOT NULL,
 		PRIMARY KEY (playerid, gameid)
 	);
+
+	CREATE VIEW IF NOT EXISTS ranked_player_games AS 
+	SELECT
+		pg.gameid,
+		pg.playerid,
+		pg.points,
+		ROW_NUMBER() OVER (
+			PARTITION BY pg.gameid
+			ORDER BY pg.points DESC, p.name ASC
+		) AS rn
+	FROM
+		player_games pg
+	JOIN
+		players p ON pg.playerid = p.id;
 	`
 	conn.logSQL(sql)
 

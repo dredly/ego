@@ -62,35 +62,13 @@ func (conn DBConnection) RecordGame(gr types.GameRecording) error {
 	return nil
 }
 
-func (conn DBConnection) AddGame(g types.Game) error {
-	sql := `INSERT INTO games (
-		player1id,
-		player2id,
-		player1points,
-		player2points,
-		player1elobefore,
-		player2elobefore,
-		player1eloafter,
-		player2eloafter
-	) values ($1, $2, $3, $4, $5, $6, $7, $8)`
-	conn.logSQL(sql)
-	stmt, err := conn.db.Prepare(sql)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(g.Player1ID, g.Player2ID, g.Player1Points, g.Player2Points, g.Player1ELOBefore, g.Player2ELOBefore, g.Player1ELOAfter, g.Player2ELOAfter) 
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDisplay, error) {
 	all_games_query := `
-		SELECT p1.name, p2.name, g.player1Points, g.player2Points, g.played 
+		SELECT g.played 
 		FROM games AS g 
-		INNER JOIN players as p1 ON g.player1id = p1.id
-		INNER JOIN players as p2 ON g.player2id = p2.id
+		INNER JOIN player_games as pg ON g.id = pg.gameid
+
+		INNER JOIN players as p ON g.playerid = p.id
 	`
 	ordering := " ORDER BY g.played DESC"
 
