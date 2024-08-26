@@ -53,10 +53,10 @@
     - [x] add command (already works)
     - [x] leaderboard command (already works)
     - [x] record command
-    - [ ] games command
+    - [x] games command
         - [x] ranked_games view
         - [x] game_summaries view
-        - [ ] get command working again
+        - [x] get command working again
     - [ ] undo command
     - [ ] stats command
 - [ ] Delete players

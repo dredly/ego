@@ -62,15 +62,12 @@ func (conn DBConnection) RecordGame(gr types.GameRecording) error {
 	return nil
 }
 
-func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDisplay, error) {
+func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameSummary, error) {
 	all_games_query := `
-		SELECT g.played 
-		FROM games AS g 
-		INNER JOIN player_games as pg ON g.id = pg.gameid
-
-		INNER JOIN players as p ON g.playerid = p.id
+		SELECT player1name, player1points, player2name, player2points, played
+		FROM game_summaries
 	`
-	ordering := " ORDER BY g.played DESC"
+	ordering := " ORDER BY played DESC"
 
 	var playerFilter string
 	var limitClause string
@@ -78,7 +75,7 @@ func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDispl
 
 	if playerName != "" {
 		args = append(args, playerName)
-		playerFilter = fmt.Sprintf(" WHERE p1.name = $%d OR p2.name = $%d", len(args), len(args)) 
+		playerFilter = fmt.Sprintf(" WHERE player1name = $%d OR player2name = $%d", len(args), len(args)) 
 	}
 	if limit > 0 {
 		args = append(args, limit)
@@ -94,13 +91,13 @@ func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameDispl
 	}
 	defer rows.Close()
 
-	var games []types.GameDisplay
+	var gameSummaries []types.GameSummary
 	for rows.Next() {
-		var g types.GameDisplay
-		rows.Scan(&g.Player1Name, &g.Player2Name, &g.Player1Points, &g.Player2Points, &g.Played)
-		games = append(games, g)	
+		var gs types.GameSummary
+		rows.Scan(&gs.Player1Name, &gs.Player1Points, &gs.Player2Name, &gs.Player2Points, &gs.Played)
+		gameSummaries = append(gameSummaries, gs)	
 	}
-	return games, nil
+	return gameSummaries, nil
 }
 
 func (conn DBConnection) DeleteMostRecentGame() (types.Game, error) {

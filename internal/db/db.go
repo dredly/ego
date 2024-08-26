@@ -76,12 +76,11 @@ func (conn DBConnection) Initialise() error {
 
 	CREATE VIEW IF NOT EXISTS game_summaries AS
 	SELECT
-		g.id AS game_id,
-		p1.name AS player1_name,
-		rpg1.points AS player1_points,
-		p2.name AS player2_name,
-		rpg2.points AS player2_points,
-		g.played AS game_date
+		p1.name AS player1name,
+		rpg1.points AS player1points,
+		p2.name AS player2name,
+		rpg2.points AS player2points,
+		g.played AS played
 	FROM
 		games g
 	JOIN
