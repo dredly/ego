@@ -73,6 +73,25 @@ func (conn DBConnection) Initialise() error {
 		player_games pg
 	JOIN
 		players p ON pg.playerid = p.id;
+
+	CREATE VIEW IF NOT EXISTS game_summaries AS
+	SELECT
+		g.id AS game_id,
+		p1.name AS player1_name,
+		rpg1.points AS player1_points,
+		p2.name AS player2_name,
+		rpg2.points AS player2_points,
+		g.played AS game_date
+	FROM
+		games g
+	JOIN
+		ranked_player_games rpg1 ON g.id = rpg1.gameid AND rpg1.rn = 1
+	JOIN
+		ranked_player_games rpg2 ON g.id = rpg2.gameid AND rpg2.rn = 2
+	JOIN
+		players p1 ON rpg1.playerid = p1.id
+	JOIN
+		players p2 ON rpg2.playerid = p2.id;
 	`
 	conn.logSQL(sql)
 

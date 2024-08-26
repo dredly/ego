@@ -55,7 +55,7 @@
     - [x] record command
     - [ ] games command
         - [x] ranked_games view
-        - [ ] game_summaries view
+        - [x] game_summaries view
         - [ ] get command working again
     - [ ] undo command
     - [ ] stats command
@@ -65,3 +65,5 @@
     - [ ] Show time when player was at peak ELO
     - [ ] Plot ELO over time
     - [ ] allow specifying time when recording game
+- [ ] Test coverage
+- [ ] CICD
