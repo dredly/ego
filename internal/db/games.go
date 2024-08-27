@@ -100,34 +100,69 @@ func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameSumma
 	return gameSummaries, nil
 }
 
-func (conn DBConnection) DeleteMostRecentGame() (types.Game, error) {
-	sql := `
-		DELETE
-		FROM games
-		WHERE played = (SELECT MAX(played) FROM games)
-		RETURNING
+func (conn DBConnection) UndoGame() (types.GameDetail, error) {
+	tx, err := conn.db.Begin()
+    if err != nil {
+        return types.GameDetail{}, err
+    }
+
+	latestGameSQL := `
+		SELECT
 			id,
-			player1id, player2id, 
-			player1points, player2points, 
-			player1elobefore, player2elobefore,  
-			player1eloafter, player2eloafter,
+			player1name, player1elobefore, player1eloafter,
+			player2name, player2elobefore, player2eloafter,
 			played
+		FROM game_details
+		ORDER BY played DESC
+		LIMIT 1
 	`
-	conn.logSQL(sql)
-
-	row := conn.db.QueryRow(sql)
-	var g types.Game
-	err := row.Scan(
-		&g.ID, 
-		&g.Player1ID, &g.Player2ID, 
-		&g.Player1Points, &g.Player2Points, 
-		&g.Player1ELOBefore, &g.Player2ELOBefore, 
-		&g.Player1ELOAfter, &g.Player2ELOAfter, 
-		&g.Played,
+	conn.logSQL(latestGameSQL)
+	row := conn.db.QueryRow(latestGameSQL)
+	var gd types.GameDetail
+	err = row.Scan(
+		&gd.ID,
+		&gd.Player1Name, &gd.Player1ELOBefore, &gd.Player1ELOAfter,
+		&gd.Player2Name, &gd.Player2ELOBefore, &gd.Player2ELOAfter,
+		&gd.Played,
 	)
-
 	if err != nil {
-		return types.Game{}, err
+		tx.Rollback()
+		return types.GameDetail{}, err
 	}
-	return g, nil
+
+	updatePlayerSQL := `UPDATE players SET elo = $1 WHERE name = $2`
+	conn.logSQL(updatePlayerSQL)
+	_, err = tx.Exec(updatePlayerSQL, gd.Player1ELOAfter, gd.Player1Name)
+	if err != nil {
+		tx.Rollback()
+		return types.GameDetail{}, err
+	}
+	_, err = tx.Exec(updatePlayerSQL, gd.Player2ELOAfter, gd.Player2Name)
+	if err != nil {
+		tx.Rollback()
+		return types.GameDetail{}, err
+	}
+
+	deletePlayerGamesSQL := `DELETE FROM player_games WHERE gameid = $1`
+	conn.logSQL(deletePlayerGamesSQL)
+	_, err = tx.Exec(deletePlayerGamesSQL, gd.ID)
+	if err != nil {
+		tx.Rollback()
+		return types.GameDetail{}, err
+	}
+
+	deleteGameSQL := `DELETE FROM games WHERE id = $1`
+	conn.logSQL(deleteGameSQL)
+	_, err = tx.Exec(deleteGameSQL, gd.ID)
+	if err != nil {
+		tx.Rollback()
+		return types.GameDetail{}, err
+	}
+
+	err = tx.Commit()
+    if err != nil {
+        return types.GameDetail{}, err
+    }
+
+	return gd, err
 }

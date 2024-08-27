@@ -18,23 +18,16 @@ func RunUndo() {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}
 
-	deletedGame, err := conn.DeleteMostRecentGame()
+	deletedGameDetail, err := conn.UndoGame()
 	if err != nil {
-		logger.Fatalf("failed to delete game: %v", err)
+		logger.Fatalf("failed to undo game: %v", err)
 	}
 
-	player1Reverted, err := conn.UpdateELOByID(deletedGame.Player1ID, deletedGame.Player1ELOBefore)
-	if err != nil {
-		logger.Fatalf("failed to update ELO for player: %v", err)
-	}
-	player2Reverted, err := conn.UpdateELOByID(deletedGame.Player2ID, deletedGame.Player2ELOBefore)
-	if err != nil {
-		logger.Fatalf("failed to update ELO for player: %v", err)
-	}
-
-	logger.Printf("Reverted last game between %s and %s, played on %s", player1Reverted.Name, player2Reverted.Name, deletedGame.Played)
+	logger.Printf("Reverted last game between %s and %s, played on %s", 
+		deletedGameDetail.Player1Name, deletedGameDetail.Player2Name, deletedGameDetail.Played,
+	)
 	logger.Printf("%s elo: %.2f -> %.2f. %s elo: %.2f -> %.2f", 
-		player1Reverted.Name, deletedGame.Player1ELOAfter, deletedGame.Player1ELOBefore, 
-		player2Reverted.Name, deletedGame.Player2ELOAfter, deletedGame.Player2ELOBefore,
+		deletedGameDetail.Player1Name, deletedGameDetail.Player1ELOAfter, deletedGameDetail.Player1ELOBefore, 
+		deletedGameDetail.Player2Name, deletedGameDetail.Player2ELOAfter, deletedGameDetail.Player2ELOBefore,
 	)
 }

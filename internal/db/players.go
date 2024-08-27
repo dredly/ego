@@ -62,25 +62,6 @@ func (conn DBConnection) UpdatePlayer(p types.Player) error {
 	return nil
 }
 
-func (conn DBConnection) UpdateELOByID(id int, newELO float64) (types.Player, error) {
-	sql := `
-		UPDATE players SET elo = $1
-		WHERE id = $2
-		RETURNING name, elo
-	`
-	conn.logSQL(sql)
-
-	row := conn.db.QueryRow(sql, newELO, id)
-	p := types.Player{
-		ID: id,
-	}
-	err := row.Scan(&p.Name, &p.ELO)
-	if err != nil {
-		return types.Player{}, err
-	}
-	return p, nil
-}
-
 func (conn DBConnection) PeakELOForPlayer(name string) (float64, error) {
 	sql := `
 		SELECT MAX(ELO) AS peak_elo FROM (

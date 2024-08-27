@@ -57,7 +57,8 @@
         - [x] ranked_games view
         - [x] game_summaries view
         - [x] get command working again
-    - [ ] undo command
+    - [x] undo command
+    - [ ] Just use game_details view for everything
     - [ ] stats command
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players

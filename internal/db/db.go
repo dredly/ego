@@ -65,6 +65,8 @@ func (conn DBConnection) Initialise() error {
 		pg.gameid,
 		pg.playerid,
 		pg.points,
+		pg.elobefore,
+		pg.eloafter,
 		ROW_NUMBER() OVER (
 			PARTITION BY pg.gameid
 			ORDER BY pg.points DESC, p.name ASC
@@ -91,6 +93,29 @@ func (conn DBConnection) Initialise() error {
 		players p1 ON rpg1.playerid = p1.id
 	JOIN
 		players p2 ON rpg2.playerid = p2.id;
+
+	CREATE VIEW IF NOT EXISTS game_details AS
+	SELECT
+		g.id AS id,
+		p1.name AS player1name,
+		rpg1.points AS player1points,
+		rpg1.elobefore AS player1elobefore,
+		rpg1.eloafter AS player1eloafter,
+		p2.name AS player2name,
+		rpg2.points AS player2points,
+		rpg2.elobefore AS player2elobefore,
+		rpg2.eloafter AS player2eloafter,
+		g.played AS played
+	FROM
+		games g
+	JOIN
+		ranked_player_games rpg1 ON g.id = rpg1.gameid AND rpg1.rn = 1
+	JOIN
+		ranked_player_games rpg2 ON g.id = rpg2.gameid AND rpg2.rn = 2
+	JOIN
+		players p1 ON rpg1.playerid = p1.id
+	JOIN
+		players p2 ON rpg2.playerid = p2.id;	
 	`
 	conn.logSQL(sql)
 

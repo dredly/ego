@@ -37,7 +37,6 @@ type PlayerRecording struct {
 	ELOAfter float64
 }
 
-
 type Game struct {
 	ID, Player1ID, Player2ID, Player1Points, Player2Points int
 	Player1ELOBefore, Player2ELOBefore, Player1ELOAfter, Player2ELOAfter float64
@@ -48,4 +47,10 @@ type GameSummary struct {
 	Player1Name, Player2Name string
 	Player1Points, Player2Points int
 	Played time.Time
+}
+
+type GameDetail struct {
+	GameSummary
+	Player1ELOBefore, Player2ELOBefore, Player1ELOAfter, Player2ELOAfter float64
+	ID int
 }
