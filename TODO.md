@@ -48,7 +48,7 @@
     - [x] Win rate
     - [x] Allow picking which stats to display
     - [x] Documentation
-- [ ] Schema overhaul
+- [x] Schema overhaul
     - [x] create command
     - [x] add command (already works)
     - [x] leaderboard command (already works)
@@ -58,8 +58,11 @@
         - [x] game_summaries view
         - [x] get command working again
     - [x] undo command
-    - [ ] Just use game_details view for everything
-    - [ ] stats command
+    - [x] Just use game_details view for everything
+    - [x] stats command
+        - [x] Peak ELO
+        - [x] Games Played
+        - [x] Win rate
 - [ ] Delete players
 - [ ] Show head to head stats between 2 players
 - [ ] ELO and time

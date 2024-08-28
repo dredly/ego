@@ -65,7 +65,7 @@ func (conn DBConnection) RecordGame(gr types.GameRecording) error {
 func (conn DBConnection) Games(playerName string, limit uint) ([]types.GameSummary, error) {
 	all_games_query := `
 		SELECT player1name, player1points, player2name, player2points, played
-		FROM game_summaries
+		FROM game_details
 	`
 	ordering := " ORDER BY played DESC"
 

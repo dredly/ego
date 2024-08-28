@@ -37,14 +37,20 @@ func RunStats() {
 	addDbPathFlag(statsCmd)
 	statsCmd.Parse(os.Args[2:])
 
+	if statsSpecified {
+		verboseLog("stats have been specified")
+	} else {
+		verboseLog("displaying all stats")
+	}
+
 	conn, err := db.Connect(dbPath, verbose)
 	if err != nil {
 		logger.Fatalf("failed to get db connection: %v", err)
 	}
 
-	gamesPlayed, err := conn.GamesPlayed(*name)
+	gameResults, err := conn.GameResults(*name)
 	if err != nil {
-		logger.Fatalf("failed to determine number of games played by player: %v", err)
+		logger.Fatalf("Failed to query game results for player: %v", err)
 	}
 
 	outputLines := []string{
@@ -52,20 +58,11 @@ func RunStats() {
 	}
 
 	if played || !statsSpecified {
-		outputLines = append(outputLines, fmt.Sprintf("Games Played: %d", gamesPlayed))
+		outputLines = append(outputLines, fmt.Sprintf("Games Played: %d", gameResults.Total()))
 	}
 
 	if winRate || !statsSpecified {
-		gamesWon, err := conn.GamesWon(*name)
-		if err != nil {
-			logger.Fatalf("failed to determine number of games won by player: %v", err)
-		}
-		displayedWinRate := "N/A"
-		if gamesPlayed > 0 {
-			winPercentage := (float64(gamesWon)  / float64(gamesPlayed)) * 100
-			displayedWinRate = fmt.Sprintf("%.1f%%", winPercentage)
-		}
-		outputLines = append(outputLines, fmt.Sprintf("Win rate: %s", displayedWinRate))
+		outputLines = append(outputLines, fmt.Sprintf("Win rate: %s", gameResults.WinRateStr()))
 	}
 
 	if peak || !statsSpecified {
