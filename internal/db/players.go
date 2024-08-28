@@ -62,48 +62,13 @@ func (conn DBConnection) UpdatePlayer(p types.Player) error {
 	return nil
 }
 
-func (conn DBConnection) UpdateELOByID(id int, newELO float64) (types.Player, error) {
-	sql := `
-		UPDATE players SET elo = $1
-		WHERE id = $2
-		RETURNING name, elo
-	`
-	conn.logSQL(sql)
-
-	row := conn.db.QueryRow(sql, newELO, id)
-	p := types.Player{
-		ID: id,
-	}
-	err := row.Scan(&p.Name, &p.ELO)
-	if err != nil {
-		return types.Player{}, err
-	}
-	return p, nil
-}
-
 func (conn DBConnection) PeakELOForPlayer(name string) (float64, error) {
 	sql := `
-		SELECT MAX(ELO) AS peak_elo FROM (
-			SELECT MAX(g.player1elobefore, g.player1eloafter) AS elo
-			FROM games AS g
-			INNER JOIN players as p1 ON g.player1id = p1.id
-			WHERE p1.name = $1
-
-			UNION ALL
-
-			SELECT MAX(g.player2elobefore, g.player2eloafter) AS elo
-			FROM games AS g
-			INNER JOIN players as p2 ON g.player2id = p2.id
-			WHERE p2.name = $1
-
-			UNION ALL
-			
-			SELECT p.elo
-			FROM players AS p
-			WHERE p.name = $1
-		) AS historical_elo;
+		SELECT MAX(MAX(pg.elobefore, pg.eloafter)) AS peak_elo
+		FROM player_games AS pg
+		INNER JOIN players AS p ON pg.playerid = p.id
+		WHERE p.name = $1
 	`
-
 	conn.logSQL(sql)
 
 	row := conn.db.QueryRow(sql, name)
@@ -117,56 +82,34 @@ func (conn DBConnection) PeakELOForPlayer(name string) (float64, error) {
 	return peakELO, nil
 }
 
-func (conn DBConnection) GamesPlayed(name string) (int, error) {
+func (conn DBConnection) GameResults(name string) (types.GameResults, error) {
 	sql := `
-		SELECT COUNT(*) FROM games AS g 
-		INNER JOIN players as p1 ON g.player1id = p1.id
-		INNER JOIN players as p2 ON g.player2id = p2.id
-		WHERE p1.name = $1 OR p2.name = $1
+		SELECT 
+			SUM(CASE 
+				WHEN rpg.points > opponent.points THEN 1 
+				ELSE 0 
+			END) AS won,
+			SUM(CASE 
+				WHEN rpg.points = opponent.points THEN 1 
+				ELSE 0 
+			END) AS drawn,
+			SUM(CASE 
+				WHEN rpg.points < opponent.points THEN 1 
+				ELSE 0 
+			END) AS lost
+		FROM ranked_player_games rpg
+		JOIN players p ON rpg.playerid = p.id
+		JOIN ranked_player_games opponent ON rpg.gameid = opponent.gameid AND rpg.playerid != opponent.playerid
+		WHERE p.name = $1;
 	`
-
 	conn.logSQL(sql)
 
 	row := conn.db.QueryRow(sql, name)
-	var gamesPlayed int
-
-	err := row.Scan(&gamesPlayed)
+	var gr types.GameResults
+	err := row.Scan(&gr.Won, &gr.Drawn, &gr.Lost)
 	if err != nil {
-		return 0, err
+		return types.GameResults{}, err
 	}
 
-	return gamesPlayed, nil
-}
-
-func (conn DBConnection) GamesWon(name string) (int, error) {
-	sql := `
-		WITH wins_as_player1 AS (
-			SELECT COUNT(*) AS count
-			FROM games AS g
-			INNER JOIN players as p1 ON g.player1id = p1.id
-			WHERE p1.name = $1 AND g.player1points > g.player2Points
-		),
-		wins_as_player2 AS (
-			SELECT COUNT(*) AS count
-			FROM games AS g
-			INNER JOIN players as p2 ON g.player2id = p2.id
-			WHERE p2.name = $1 AND g.player2points > g.player1Points
-		)
-		SELECT
-			(SELECT count FROM wins_as_player1) + 
-			(SELECT count FROM wins_as_player2) AS games_won;
-		
-	`
-
-	conn.logSQL(sql)
-
-	row := conn.db.QueryRow(sql, name)
-	var gamesWon int
-
-	err := row.Scan(&gamesWon)
-	if err != nil {
-		return 0, err
-	}
-
-	return gamesWon, nil
+	return gr, nil
 }

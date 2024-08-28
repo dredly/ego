@@ -49,18 +49,56 @@ func (conn DBConnection) Initialise() error {
 	);
 	CREATE TABLE IF NOT EXISTS games (
 		id INTEGER PRIMARY KEY,
-		player1id INTEGER,
-		player2id INTEGER,
-		player1points INTEGER,
-		player2points INTEGER,
-		player1elobefore REAL,
-		player2elobefore REAL,
-		player1eloafter REAL,
-		player2eloafter REAL,
-		played DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY(player1id) REFERENCES players(id) ON DELETE SET NULL,
-		FOREIGN KEY(player2id) REFERENCES players(id) ON DELETE SET NULL
-	);`
+		played DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE TABLE IF NOT EXISTS player_games (
+		playerid INTEGER NOT NULL,
+		gameid INTEGER NOT NULL,
+		points INTEGER NOT NULL,
+		elobefore REAL NOT NULL,
+		eloafter REAL NOT NULL,
+		PRIMARY KEY (playerid, gameid)
+	);
+
+	CREATE VIEW IF NOT EXISTS ranked_player_games AS 
+	SELECT
+		pg.gameid,
+		pg.playerid,
+		pg.points,
+		pg.elobefore,
+		pg.eloafter,
+		ROW_NUMBER() OVER (
+			PARTITION BY pg.gameid
+			ORDER BY pg.points DESC, p.name ASC
+		) AS rn
+	FROM
+		player_games pg
+	JOIN
+		players p ON pg.playerid = p.id;
+
+	CREATE VIEW IF NOT EXISTS game_details AS
+	SELECT
+		g.id AS id,
+		p1.name AS player1name,
+		rpg1.points AS player1points,
+		rpg1.elobefore AS player1elobefore,
+		rpg1.eloafter AS player1eloafter,
+		p2.name AS player2name,
+		rpg2.points AS player2points,
+		rpg2.elobefore AS player2elobefore,
+		rpg2.eloafter AS player2eloafter,
+		g.played AS played
+	FROM
+		games g
+	JOIN
+		ranked_player_games rpg1 ON g.id = rpg1.gameid AND rpg1.rn = 1
+	JOIN
+		ranked_player_games rpg2 ON g.id = rpg2.gameid AND rpg2.rn = 2
+	JOIN
+		players p1 ON rpg1.playerid = p1.id
+	JOIN
+		players p2 ON rpg2.playerid = p2.id;	
+	`
 	conn.logSQL(sql)
 
 	_, err := conn.db.Exec(sql)

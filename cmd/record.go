@@ -54,25 +54,23 @@ func RunRecord() {
 	player1.RecordResult(player2ELOInitial, eloScore, multiplier)
 	player2.RecordResult(player1ELOInitial, 1 - eloScore, multiplier)
 
-	game := types.Game{
-		Player1ID: player1.ID,
-		Player2ID: player2.ID,
-		Player1Points: p1Points,
-		Player2Points: p2Points,
-		Player1ELOBefore: player1ELOInitial,
-		Player2ELOBefore: player2ELOInitial,
-		Player1ELOAfter: player1.ELO,
-		Player2ELOAfter: player2.ELO,
+	gr := types.GameRecording{
+		Player1: types.PlayerRecording{
+			Player: player1,
+			Points: p1Points,
+			ELOBefore: player1ELOInitial,
+			ELOAfter: player1.ELO,
+		},
+		Player2: types.PlayerRecording{
+			Player: player2,
+			Points: p2Points,
+			ELOBefore: player2ELOInitial,
+			ELOAfter: player2.ELO,
+		},
 	}
-	
-	if err := conn.AddGame(game); err != nil {
-		logger.Fatalf("failed to add game: %v", err)
-	}
-	if err := conn.UpdatePlayer(player1); err != nil {
-		logger.Fatalf("failed to update elo: %v", err)
-	}
-	if err := conn.UpdatePlayer(player2); err != nil {
-		logger.Fatalf("failed to update elo: %v", err)
+
+	if err := conn.RecordGame(gr); err != nil {
+		logger.Fatalf("failed to record game: %v", err)
 	}
 
 	logger.Printf("Recorded result %s between %s and %s", *score, *playerName1, *playerName2)
